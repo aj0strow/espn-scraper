@@ -1,6 +1,6 @@
 require 'httparty'
 require 'nokogiri'
 
-%w[ boilerplate teams ].each do |file|
+%w[ boilerplate teams scores ].each do |file|
   require "espn_scraper/#{ file }"
 end
