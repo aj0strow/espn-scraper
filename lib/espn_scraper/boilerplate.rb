@@ -12,20 +12,20 @@ module ESPN
   #     espn_url('teams', 'nba')
   def self.url(*path)
     subdomain = (path.first == 'scores') ? path.shift : nil
-  	domain = [subdomain, 'espn', 'go', 'com'].compact.join('.')
-  	['http:/', domain, *path].join('/')
+    domain = [subdomain, 'espn', 'go', 'com'].compact.join('.')
+    ['http:/', domain, *path].join('/')
   end
 
   # Returns Nokogiri HTML document
   # Ex: espn_get('teams', 'nba')
   def self.get(*path)
-  	http_url = self.url(*path)
-  	response = HTTParty.get(http_url)
-  	unless response.code == 200
-  	  raise "The url #{ http_url } from the path #{ path } did not return a valid page."
-  	else
-  	  Nokogiri::HTML(response.body)
-  	end
+    http_url = self.url(*path)
+    response = HTTParty.get(http_url)
+    unless response.code == 200
+      raise "The url #{ http_url } from the path #{ path } did not return a valid page."
+    else
+      Nokogiri::HTML(response.body)
+    end
   end
 
 end
