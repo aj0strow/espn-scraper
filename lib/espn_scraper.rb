@@ -1,18 +1,8 @@
 require 'httparty'
 require 'nokogiri'
 
-def responding?
-	HTTParty.get('http://espn.go.com/').code == 200
-end
-
-def down?
-	!responding?
-end
-
-def espn_url(*path)
-	subdomain = (path.first == 'scores') ? path.shift : nil
-	domain = [subdomain, 'espn', 'go', 'com'].compact.join('.')
-	['http:/', domain, *path].join('/')
+%w[ boilerplate ].each do |file|
+	require "espn_scraper/#{ file }"
 end
 
 def get_teams_in(league)
