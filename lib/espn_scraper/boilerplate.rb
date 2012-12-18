@@ -29,3 +29,13 @@ module ESPN
 	end
 	
 end
+
+
+
+class String
+	
+	unless respond_to?(:dasherize)
+		define_method(:dasherize) { downcase.gsub(/\s+/, '-') }
+	end
+	
+end

@@ -16,4 +16,8 @@ class EspnTest < Test::Unit::TestCase
 		assert ESPN.get('scores')
 	end
 	
+	test 'add dasherize to string' do
+		assert_equal 'string-is-dashed', 'String is dashed'.dasherize
+	end
+	
 end
