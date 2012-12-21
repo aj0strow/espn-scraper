@@ -1,5 +1,8 @@
 module ESPN
   
+  # Outputs Hash with keys: 
+  # game_date, home_team, home_score, away_team, away_score
+  
   def self.get_scores(league, date_or_year, week=nil)
     scores_method = ["get_#{league}_scores_on", date_or_year, week].compact
     Scores.send *scores_method
