@@ -1,5 +1,11 @@
 module ESPN
   
+  TEAM_NAME_EXCEPTIONS = {
+    'nets' => 'brooklyn-nets',
+    'supersonics' => 'oklahoma-city-thunder',
+    'hornets' => 'new-orleans-hornets'
+  }
+  
   # Outputs Hash with keys: 
   # game_date, home_team, home_score, away_team, away_score
   
@@ -48,17 +54,23 @@ module ESPN
     
     # Parse Document
     
+    def self.parse_name_from(container)
+      if container.at_css('a').nil?
+        name = container.at_css('span text()').content.dasherize
+        ESPN::TEAM_NAME_EXCEPTIONS[name]
+      else
+        container.at_css('a')['href'].split('/').last
+      end
+    end
+    
     def self.home_away_parse(doc, date)
       doc.css('.mod-scorebox.final-state').map do |game|
-        game_info = { 'game_date' => date }
-        ['home', 'away'].each do |home_away|
-          team = game.at_css(".#{home_away} .team-name a")['href'].split('/').last
-          game_info["#{home_away}_team"] = team
-          
-          score = game.at_css(".#{home_away} .finalScore").content.to_i
-          game_info["#{home_away}_score"] = score
-        end
-        game_info
+        score = { 'game_date' => date }
+        score['home_team'] = parse_name_from game.at_css('.team.home .team-name')
+        score['away_team'] = parse_name_from game.at_css('.team.away .team-name')
+        score['home_score'] = game.at_css('.team.home .finalScore').content.to_i
+        score['away_score'] = game.at_css('.team.away .finalScore').content.to_i
+        score      
       end
     end
     
