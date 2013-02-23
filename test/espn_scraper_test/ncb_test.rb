@@ -5,7 +5,7 @@ class NcbTest < Test::Unit::TestCase
   test 'mens college basketball march 15th murray state beats colorado state' do
     day = Date.parse('Mar 15, 2012')
     expected = {
-      league: 'ncb',
+      league: 'mens-college-basketball',
       game_date: day,
       home_team: '93',
       home_score: 58,

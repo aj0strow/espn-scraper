@@ -8,9 +8,7 @@ module ESPN
     preseason: 1,
     regular_season: 2,
     postseason: 3
-  }
-  
-  
+  }  
 
   mlb_ignores = %w( 
     florida-state u-of-south-florida georgetown fla.-southern northeastern boston-college 
@@ -26,7 +24,10 @@ module ESPN
     team-chara team-alfredsson
   )
   
-  IGNORED_TEAMS = (mlb_ignores + nhl_ignores + nba_ignores).inject({}) do |h, team| 
+  ncf_ignores = %w( paul-quinn san-diego-christian ferris-st notre-dame-college chaminade 
+    w-new-mexico n-new-mexico )
+  
+  IGNORED_TEAMS = (mlb_ignores + nhl_ignores + nba_ignores + ncf_ignores).inject({}) do |h, team| 
     h.merge team => false 
   end
     
@@ -37,16 +38,8 @@ module ESPN
     
     'marlins' => 'mia',
     
-    
     'tx-a&m-commerce' => '2837',
-    'nw-oklahoma-st' => '2823',
-    'ferris-st' => false,
-    'notre-dame-college' => false,
-    'chaminade' => false,
-    'w-new-mexico' => false,
-    'n-new-mexico' => false,
-    'paul-quinn' => false,
-    'san-diego-christian' => false
+    'nw-oklahoma-st' => '2823'
   }.merge(IGNORED_TEAMS)
 
   # Example output:
@@ -101,7 +94,7 @@ module ESPN
     def get_ncb_scores(date)
       markup = Scores.markup_from_date('ncb', date)
       scores = Scores.visitor_home_parse(markup, 'ncb')
-      scores.each { |report| report.merge! league: 'ncb', game_date: date }
+      scores.each { |report| report.merge! league: 'mens-college-basketball', game_date: date }
       scores
     end
     
