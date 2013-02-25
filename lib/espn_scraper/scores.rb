@@ -25,7 +25,7 @@ module ESPN
   )
   
   ncf_ignores = %w( paul-quinn san-diego-christian ferris-st notre-dame-college chaminade 
-    w-new-mexico n-new-mexico )
+    w-new-mexico n-new-mexico tx-a&m-commerce nw-oklahoma-st )
   
   IGNORED_TEAMS = (mlb_ignores + nhl_ignores + nba_ignores + ncf_ignores).inject({}) do |h, team| 
     h.merge team => false 
@@ -36,10 +36,7 @@ module ESPN
     'supersonics' => 'okc',
     'hornets' => 'no',
     
-    'marlins' => 'mia',
-    
-    'tx-a&m-commerce' => '2837',
-    'nw-oklahoma-st' => '2823'
+    'marlins' => 'mia'
   }.merge(IGNORED_TEAMS)
   
   DATA_NAME_FIXES = {
