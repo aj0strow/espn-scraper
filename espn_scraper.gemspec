@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'espn_scraper'
-  s.version     = '0.0.5'
+  s.version     = '0.0.6'
   s.date        = '2012-01-30'
   s.summary     = "ESPN Scraper"
   s.description = "A simple scraping api for espn stats and data"

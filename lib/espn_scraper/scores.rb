@@ -44,7 +44,14 @@ module ESPN
   
   DATA_NAME_FIXES = {
     'nfl' => {
-      'nwe' => 'ne'
+      'nwe' => 'ne',
+      'kan' => 'kc',
+      'was' => 'wsh',
+      'nor' => 'no',
+      'gnb' => 'gb',
+      'sfo' => 'sf',
+      'tam' => 'tb',
+      'sdg' => 'sd'
     }
     
   }
