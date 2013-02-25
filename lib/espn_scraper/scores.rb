@@ -41,6 +41,23 @@ module ESPN
     'tx-a&m-commerce' => '2837',
     'nw-oklahoma-st' => '2823'
   }.merge(IGNORED_TEAMS)
+  
+  DATA_NAME_FIXES = {
+    'nfl' => {
+      'nwe' => 'ne'
+    }
+    
+  }
+  
+  def add_league_and_fixes(scores, league)
+    scores.each do |report|
+      report[:league] = league
+      [:home_team, :away_team].each do |sym|
+        team = report[sym]
+        report[sym] = DATA_NAME_FIXES[league][team] || team
+      end
+    end
+  end
 
   # Example output:
   # {
@@ -57,7 +74,7 @@ module ESPN
     def get_nfl_scores(year, week)
       markup = Scores.markup_from_year_and_week('nfl', year, week)
       scores = Scores.visitor_home_parse(markup, 'nfl')
-      scores.each { |report| report[:league] = 'nfl' }
+      add_league_and_fixes(scores, 'nfl')
       scores
     end
     
