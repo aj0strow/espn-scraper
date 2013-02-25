@@ -1,6 +1,11 @@
 require 'test_helper'
 
 class NflTest < Test::Unit::TestCase
+  
+  test 'data names are fixed' do
+    score = ESPN.get_nfl_scores(2012, 2).first
+    assert_equal 'gb', score[:home_team]
+  end
 
   test 'nfl 2012 week 8 regular season' do
     expected = {
@@ -8,7 +13,7 @@ class NflTest < Test::Unit::TestCase
       game_date: Date.parse('Oct 25, 2012'),
       home_team: 'min',
       home_score: 17,
-      away_team: 'tam',
+      away_team: 'tb',
       away_score: 36
     }
     scores = ESPN.get_nfl_scores(2012, 8)

@@ -53,18 +53,7 @@ module ESPN
       'tam' => 'tb',
       'sdg' => 'sd'
     }
-    
   }
-  
-  def add_league_and_fixes(scores, league)
-    scores.each do |report|
-      report[:league] = league
-      [:home_team, :away_team].each do |sym|
-        team = report[sym]
-        report[sym] = DATA_NAME_FIXES[league][team] || team
-      end
-    end
-  end
 
   # Example output:
   # {
@@ -124,6 +113,19 @@ module ESPN
     
     alias_method :get_college_basketball_scores, :get_ncb_scores
     
+    
+    
+    
+    def add_league_and_fixes(scores, league)
+      scores.each do |report|
+        report[:league] = league
+        [:home_team, :away_team].each do |sym|
+          team = report[sym]
+          report[sym] = DATA_NAME_FIXES[league][team] || team
+        end
+      end
+    end
+
   end  
 
 
