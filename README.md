@@ -55,11 +55,11 @@ All score requests return an array of hashes. Here's an example NFL score hash:
 }
 ```
 
-You'll notice the `data_name` from before is used to identify teams. One issue with scraping scores is that football goes by year and week, and baseball, basketball and hockey go by date.
+You'll notice the teams are identified with the same `:data_name` from a `ESPN.get_teams_in` request. One issue with scraping scores is that football goes by year and week, and baseball, basketball, hockey go by date.
 
 ###### weekly (football)
 
-Pattern is `ESPN.get_league_scores(year, month)`. This is for nfl and ncb:
+Pattern is `ESPN.get_<league>_scores(year, month)`. This is for `nfl` and `ncb`:
 
 ```
 ESPN.get_nfl_scores(2012, 8)
@@ -68,7 +68,7 @@ ESPN.get_ncb_scores(2011, 3)
 
 ###### daily (baseball, basketball, hockey)
 
-Pattern is `ESPN.get_league_scores(date)`. This is for mlb, nba, nhl, ncb:
+Pattern is `ESPN.get_<league>_scores(date)`. This is for `mlb`, `nba`, `nhl`, `ncb`:
 
 ```
 ESPN.get_mlb_scores( Date.parse('Aug 13, 2012') )
@@ -103,6 +103,7 @@ ESPN::DATA_NAME_FIXES['nfl']['gnb'] = 'gb'
 
 Future plans:
 - Get start and end dates of a season
+- Fix test suite to not check entire year for breaks with a flag
 
 
 
