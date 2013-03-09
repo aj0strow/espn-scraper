@@ -42,8 +42,6 @@ ESPN.get_teams_in('nba')
 
 #### Scraping scores
 
-One issue with scraping scores is that football goes by year and week, and baseball, basketball and hockey go by date.
-
 All score requests return an array of hashes. Here's an example NFL score hash:
 
 ```
@@ -57,7 +55,7 @@ All score requests return an array of hashes. Here's an example NFL score hash:
 }
 ```
 
-You'll notice the `data_name` from before is used to identify teams. 
+You'll notice the `data_name` from before is used to identify teams. One issue with scraping scores is that football goes by year and week, and baseball, basketball and hockey go by date.
 
 ###### weekly (football)
 
