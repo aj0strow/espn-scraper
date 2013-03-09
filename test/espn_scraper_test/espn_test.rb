@@ -19,5 +19,10 @@ class EspnTest < Test::Unit::TestCase
   test 'add dasherize to string' do
     assert_equal 'string-is-dashed', 'String is dashed'.dasherize
   end
+  
+  test 'leagues' do
+    leagues = 'nfl mlb nba nhl ncf ncb'.split
+    assert_equal leagues, ESPN.leagues
+  end
 
 end

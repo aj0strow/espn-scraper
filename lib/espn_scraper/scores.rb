@@ -49,7 +49,12 @@ module ESPN
       'sfo' => 'sf',
       'tam' => 'tb',
       'sdg' => 'sd'
-    }
+    },
+    'mlb' => {},
+    'nba' => {},
+    'nhl' => {},
+    'ncf' => {},
+    'ncb' => {}
   }
 
   # Example output:
