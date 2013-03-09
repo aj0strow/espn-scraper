@@ -83,12 +83,14 @@ Add the gem to your `Gemfile`
 
 ```
 gem 'espn_scraper', git: 'git://github.com/aj0strow/espn-scraper.git'
-```
-
-or
-
-```
+# or
 gem "espn_scraper", github: 'aj0strow/espn-scraper'
+```
+
+..and then require it. I personally use it in rake tasks of a Rails app.
+
+```
+require 'espn_scraper'
 ```
 
 ## Contributing
