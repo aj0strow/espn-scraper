@@ -59,7 +59,7 @@ You'll notice the teams are identified with the same `:data_name` from a `ESPN.g
 
 ###### weekly (football)
 
-Pattern is `ESPN.get_<league>_scores(year, month)`. This is for `nfl` and `ncb`:
+Pattern is `ESPN.get_<league>_scores(year, week)`. This is for `nfl` and `ncb`:
 
 ```
 ESPN.get_nfl_scores(2012, 8)
