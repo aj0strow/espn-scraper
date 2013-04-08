@@ -1,3 +1,6 @@
+require 'httparty'
+require 'nokogiri'
+
 module ESPN
 
   def self.responding?
@@ -30,12 +33,6 @@ module ESPN
 
 end
 
-
-
-class String
-
-  unless respond_to?(:dasherize)
-    define_method(:dasherize) { strip.downcase.gsub(/\s+/, '-') }
-  end
-
+def dasherize(str)
+  str.downcase.gsub(/\s+/, '-')
 end

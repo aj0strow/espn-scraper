@@ -11,12 +11,12 @@ module ESPN
       divisions = {}
 	
       doc.css('.mod-teams-list-medium').each do |division|
-        key = division.at_css('.mod-header h4 text()').content.gsub(/division/i, '').dasherize
+        key = dasherize division.at_css('.mod-header h4 text()').content.gsub(/division/i, '')
         divisions[key] = division.css('.mod-content li').map do |team|
           team_name = team.at_css('h5 a.bi').content
           data_name, slug = team.at_css('h5 a.bi')['href'].split('/').last(2)
         
-          name_addition = slug.sub(team_name.dasherize, '').split('-').reject(&:empty?).each do |word| 
+          name_addition = slug.sub(dasherize(team_name), '').split('-').reject(&:empty?).each do |word| 
             word.capitalize!
           end.join(' ')
         

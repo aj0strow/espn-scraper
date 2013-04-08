@@ -17,7 +17,7 @@ class EspnTest < Test::Unit::TestCase
   end
 	
   test 'add dasherize to string' do
-    assert_equal 'string-is-dashed', 'String is dashed'.dasherize
+    assert_equal 'string-is-dashed', dasherize('String is dashed')
   end
   
   test 'leagues' do

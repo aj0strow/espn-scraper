@@ -1,9 +1,16 @@
 Gem::Specification.new do |s|
   s.name        = 'espn_scraper'
-  s.version     = '0.0.9'
-  s.date        = '2012-01-30'
+  s.version     = '0.1.0'
+  s.date        = '2013-04-07'
   s.summary     = "ESPN Scraper"
   s.description = "a simple scraping api for espn stats and data"
   s.authors     = [ "aj0strow" ]
-  s.files       = [ "lib/espn_scraper.rb" ]
+  s.email       = 'alexander.ostrow@gmail.com'
+  
+  s.add_dependency 'httparty'
+  s.add_dependency 'nokogiri'
+  
+  
+  s.files       = `git ls-files`.split("\n")
+  s.test_files  = `git ls-files -- test`.split("\n")
 end
