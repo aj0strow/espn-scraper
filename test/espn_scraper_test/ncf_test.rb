@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class NcfTest < EspnTest
+  
   test 'college football 2012 week 9 regular season' do
     expected = {
       league: 'college-football',

@@ -1,5 +1,4 @@
 module ESPN
-  
   class << self
     
     def leagues
@@ -56,5 +55,4 @@ module ESPN
     end
 
   end
-  
 end

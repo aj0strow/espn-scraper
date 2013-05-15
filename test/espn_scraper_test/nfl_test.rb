@@ -1,6 +1,7 @@
 require 'test_helper'
 
-class NflTest < EspnTest  
+class NflTest < EspnTest
+  
   test 'data names are fixed' do
     score = ESPN.get_nfl_scores(2012, 2).first
     assert_equal 'gb', score[:home_team]

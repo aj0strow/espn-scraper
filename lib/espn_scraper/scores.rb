@@ -2,7 +2,6 @@ require 'uri'
 require 'cgi'
 
 module ESPN
-  
   # For football
   SEASONS = {
     preseason: 1,
@@ -113,10 +112,7 @@ module ESPN
       scores
     end
     
-    alias_method :get_college_basketball_scores, :get_ncb_scores
-    
-    
-    
+    alias_method :get_college_basketball_scores, :get_ncb_scores    
     
     def add_league_and_fixes(scores, league)
       scores.each do |report|
@@ -127,15 +123,11 @@ module ESPN
         end
       end
     end
-
   end  
 
 
 
-
-  
   module Scores
-        
     class << self
     
       # Get Markup
@@ -222,6 +214,5 @@ module ESPN
       end
     
     end
-    
   end
 end

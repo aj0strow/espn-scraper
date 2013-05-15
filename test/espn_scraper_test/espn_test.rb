@@ -1,6 +1,7 @@
 require 'test_helper'
 
-class BoilerplateTest < EspnTest	
+class BoilerplateTest < EspnTest
+  
   test 'espn is up' do
     assert ESPN.responding?
     assert !ESPN.down?

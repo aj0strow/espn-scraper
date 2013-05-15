@@ -1,6 +1,7 @@
 require 'test_helper'
 
-class TeamsTest < EspnTest	
+class TeamsTest < EspnTest
+  
   test 'scrape nfl teams' do
     divisions = ESPN.get_teams_in('nfl')
     assert_equal 8, divisions.count

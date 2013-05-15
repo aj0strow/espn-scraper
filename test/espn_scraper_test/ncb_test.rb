@@ -1,6 +1,7 @@
 require 'test_helper'
 
-class NcbTest < EspnTest  
+class NcbTest < EspnTest
+  
   test 'mens college basketball march 15th murray state beats colorado state' do
     day = Date.parse('Mar 15, 2012')
     expected = {

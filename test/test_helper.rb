@@ -4,11 +4,12 @@ require 'test/unit'
 require 'espn_scraper'
 
 class EspnTest < Test::Unit::TestCase
-  
   class << self
+    
     def test(test_name, &block)
       define_method("test_#{ test_name.gsub(/\s+/, '_') }", &block)
     end
+    
   end
 
   def all_names_present?(ary)
@@ -31,5 +32,4 @@ class EspnTest < Test::Unit::TestCase
   def random_weeks(amount = ERROR_CHECKS)
     (1..17).to_a.sample(amount)
   end
-  
 end

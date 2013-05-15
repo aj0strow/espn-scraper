@@ -1,6 +1,7 @@
 require 'test_helper'
 
-class NbaTest < EspnTest  
+class NbaTest < EspnTest
+  
   test 'nba december 25th celtics beat nets' do
     day = Date.parse('Dec 25, 2012')
     expected = {
