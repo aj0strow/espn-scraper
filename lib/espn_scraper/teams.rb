@@ -3,7 +3,20 @@ module ESPN
   class << self
     
     def leagues
-      %w( nfl mlb nba nhl ncf ncb )
+      %w(nfl mlb nba nhl ncf ncb)
+    end
+    
+    def get_divisions
+      divisions = {}
+      leagues.each do |league|
+        doc = self.get(league, 'teams')
+        divisions[league] = doc.css('.mod-teams-list-medium').map do |div|
+          name = div.at_css('.mod-header h4 text()').content
+          data_name = dasherize name.gsub(/division/i, '')
+          { name: name, data_name: data_name }
+        end
+      end
+      divisions
     end
     
     def get_teams_in(league)

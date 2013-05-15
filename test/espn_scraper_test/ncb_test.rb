@@ -1,7 +1,6 @@
 require 'test_helper'
 
-class NcbTest < Test::Unit::TestCase
-  
+class NcbTest < EspnTest  
   test 'mens college basketball march 15th murray state beats colorado state' do
     day = Date.parse('Mar 15, 2012')
     expected = {
@@ -17,9 +16,8 @@ class NcbTest < Test::Unit::TestCase
   end
   
 
-  test 'full year with no breaks' do
-    puts "Checking an entire year for errors (will take a while)"
-    (Date.parse('Feb 12, 2012')..Date.parse('Aug 1, 2012')).each do |day|
+  test 'random ncb dates' do
+    random_days.each do |day|
       scores = ESPN.get_college_basketball_scores(day)
       assert all_names_present?(scores), "Error on #{day} for college basketball"
     end

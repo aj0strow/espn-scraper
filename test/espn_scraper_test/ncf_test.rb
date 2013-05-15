@@ -1,7 +1,6 @@
 require 'test_helper'
 
-class NcfTest < Test::Unit::TestCase
-
+class NcfTest < EspnTest
   test 'college football 2012 week 9 regular season' do
     expected = {
       league: 'college-football',
@@ -16,8 +15,7 @@ class NcfTest < Test::Unit::TestCase
   end
   
   test 'looking for a break' do
-    puts "Checking for errors (will take a while)"
-    (1..17).each do |week|
+    random_days.each do |week|
       scores = ESPN.get_college_football_scores(2012, week)
       assert all_names_present?(scores), "!!! error in week #{week}"
     end

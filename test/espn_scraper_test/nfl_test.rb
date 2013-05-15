@@ -1,7 +1,6 @@
 require 'test_helper'
 
-class NflTest < Test::Unit::TestCase
-  
+class NflTest < EspnTest  
   test 'data names are fixed' do
     score = ESPN.get_nfl_scores(2012, 2).first
     assert_equal 'gb', score[:home_team]
@@ -34,8 +33,7 @@ class NflTest < Test::Unit::TestCase
   end
   
   test 'looking for a break' do
-    puts "Checking for errors (will take a while)"
-    (1..17).each do |week|
+    random_weeks.each do |week|
       scores = ESPN.get_nfl_scores(2012, week)
       assert all_names_present?(scores), "!!! error in week #{week}"
     end

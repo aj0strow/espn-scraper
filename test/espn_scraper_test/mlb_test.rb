@@ -1,7 +1,6 @@
 require 'test_helper'
 
-class MlbTest < Test::Unit::TestCase
-  
+class MlbTest < EspnTest  
   test 'mlb august 13th yankees beat rangers' do
     day = Date.parse('Aug 13, 2012')
     expected = {
@@ -16,9 +15,8 @@ class MlbTest < Test::Unit::TestCase
     assert_equal expected, scores.first
   end
   
-  test 'full year with no breaks' do
-    puts "Checking an entire year for errors (will take a while)"
-    (Date.parse('Aug 1, 2011')..Date.parse('Aug 1, 2012')).each do |day|
+  test 'random mlb days' do
+    random_days.each do |day|
       scores = ESPN.get_mlb_scores(day)
       assert all_names_present?(scores), "Error on #{day} for mlb"
     end

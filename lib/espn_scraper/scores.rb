@@ -135,7 +135,7 @@ module ESPN
 
   
   module Scores
-    
+        
     class << self
     
       # Get Markup
