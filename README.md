@@ -29,12 +29,12 @@ You can get all the divisions in each league.
 ```ruby
 ESPN.get_divisions
 # => {
-#   'nfl' => [
+#   "nfl" => [
 #     { :name => "NFC East", :data_name => "nfc-east" },
 #     { :name => "NFC West", :data_name => "nfc-west" },
 #     ...
 #   ],
-#   'mlb' => ...
+#   "mlb" => ...
 # }
 ```
 
