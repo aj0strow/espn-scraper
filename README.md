@@ -121,7 +121,6 @@ ESPN::DATA_NAME_FIXES['nfl']['gnb'] = 'gb'
 
 Future plans:
 - Get start and end dates of a season
-- Fix test suite to not check entire year for breaks with a flag
 
 
 
