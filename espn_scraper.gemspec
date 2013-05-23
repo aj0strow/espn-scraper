@@ -1,5 +1,5 @@
 $:.push File.expand_path("../lib", __FILE__)
-require File.join('espn_scraper', 'version')
+require 'espn_scraper/version'
 
 Gem::Specification.new do |s|
   s.name        = 'espn_scraper'

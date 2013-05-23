@@ -2,18 +2,26 @@ module ESPN
   class << self
     
     def leagues
-      %w(nfl mlb nba nhl ncf ncb)
+      @leagues || %w(nfl mlb nba nhl ncf ncb)
+    end
+    
+    def leagues=(leagues)
+      @leagues = leagues
     end
     
     def get_divisions
       divisions = {}
       leagues.each do |league|
-        divisions[league] = get_divs(league).map do |div|
-          name = parse_div_name(div)
-          { name: name, data_name: div_data_name(name) }
-        end
+        divisions[league] = get_divisions_in(league)
       end
       divisions
+    end
+    
+    def get_divisions_in(league)
+      get_divs(league).map do |div|
+        name = parse_div_name(div)
+        { name: name, data_name: div_data_name(name) }
+      end
     end
     
     def get_teams_in(league)
