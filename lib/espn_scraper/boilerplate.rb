@@ -32,6 +32,9 @@ module ESPN
       end      
     end
     
+    def dasherize(str)
+      str.strip.downcase.gsub(/\s+/, '-')
+    end
     
     
     private
@@ -41,11 +44,7 @@ module ESPN
     def error_message(url, path)
       "The url #{url} from the path #{path} did not return a valid page."
     end
-    
-    def dasherize(str)
-      str.strip.downcase.gsub(/\s+/, '-')
-    end
-    
+        
   end
 end
 
