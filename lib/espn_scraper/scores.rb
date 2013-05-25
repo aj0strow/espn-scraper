@@ -200,7 +200,7 @@ module ESPN
           else
             name = container.at_css('text()').content
           end
-          ESPN::DATA_NAME_EXCEPTIONS[ dasherize(name) ]
+          ESPN::DATA_NAME_EXCEPTIONS[ ESPN.dasherize(name) ]
         end
       end
     
