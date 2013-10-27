@@ -75,11 +75,11 @@ You'll notice the teams are identified with the same `:data_name` from a `ESPN.g
 
 ###### weekly (football)
 
-Pattern is `ESPN.get_<league>_scores(year, week)`. This is for `nfl` and `ncb`:
+Pattern is `ESPN.get_<league>_scores(year, week)`. This is for `nfl` and `ncf`:
 
 ```ruby
 ESPN.get_nfl_scores(2012, 8)
-ESPN.get_ncb_scores(2011, 3)
+ESPN.get_ncf_scores(2011, 3)
 ```
 
 ###### daily (baseball, basketball, hockey)
@@ -100,7 +100,7 @@ Add the gem to your `Gemfile`
 ```ruby
 gem 'espn_scraper', git: 'git://github.com/aj0strow/espn-scraper.git'
 # or
-gem "espn_scraper", github: 'aj0strow/espn-scraper'
+gem 'espn_scraper', github: 'aj0strow/espn-scraper'
 ```
 
 ..and then require it. I personally use it in rake tasks of a Rails app.
