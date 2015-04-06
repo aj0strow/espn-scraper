@@ -1,9 +1,9 @@
 ERROR_CHECKS = 1
 
-require 'test/unit'
+require 'minitest/autorun'
 require 'espn_scraper'
 
-class EspnTest < Test::Unit::TestCase
+class EspnTest < Minitest::Test
   class << self
     
     def test(test_name, &block)

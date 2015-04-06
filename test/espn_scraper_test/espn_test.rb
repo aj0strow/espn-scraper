@@ -13,7 +13,7 @@ class BoilerplateTest < EspnTest
   end
   
   test 'error message works' do
-    assert_raise(ArgumentError) do
+    assert_raises(ArgumentError) do
       ESPN.get('bad-api-keyword')
     end
   end
