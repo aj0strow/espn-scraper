@@ -1,3 +1,3 @@
-%w[ boilerplate teams scores ].each do |file|
-  require "espn_scraper/#{ file }"
+%w[ boilerplate teams scores schedules ].each do |file|
+  require_relative "espn_scraper/#{ file }"
 end
