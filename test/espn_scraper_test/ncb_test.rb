@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class NcbTest < EspnTest
-  
+
   test 'mens college basketball march 15th murray state beats colorado state' do
     day = Date.parse('Mar 15, 2012')
     expected = {
@@ -15,7 +15,7 @@ class NcbTest < EspnTest
     scores = ESPN.get_college_basketball_scores(day)
     assert_equal expected, scores.first
   end
-  
+
 
   test 'random ncb dates' do
     random_days.each do |day|
@@ -23,5 +23,5 @@ class NcbTest < EspnTest
       assert all_names_present?(scores), "Error on #{day} for college basketball"
     end
   end
-  
+
 end

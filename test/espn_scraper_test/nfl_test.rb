@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class NflTest < EspnTest
-  
+
   test 'data names are fixed' do
     score = ESPN.get_nfl_scores(2012, 2).first
     assert_equal 'gb', score[:home_team]
@@ -19,7 +19,7 @@ class NflTest < EspnTest
     scores = ESPN.get_nfl_scores(2012, 8)
     assert_equal expected, scores.first
   end
-  
+
   test 'nfl 2012 week 7 regular season' do
     expected = {
       league: 'nfl',
@@ -32,7 +32,7 @@ class NflTest < EspnTest
     scores = ESPN.get_nfl_scores(2012, 7)
     assert_equal expected, scores.last
   end
-  
+
   test 'looking for a break' do
     random_weeks.each do |week|
       scores = ESPN.get_nfl_scores(2012, week)

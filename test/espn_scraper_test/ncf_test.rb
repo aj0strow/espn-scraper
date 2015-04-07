@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class NcfTest < EspnTest
-  
+
   test 'college football 2012 week 9 regular season' do
     expected = {
       league: 'college-football',
@@ -14,7 +14,7 @@ class NcfTest < EspnTest
     scores = ESPN.get_college_football_scores(2012, 9)
     assert_equal expected, scores.first
   end
-  
+
   test 'looking for a break' do
     random_days.each do |week|
       scores = ESPN.get_college_football_scores(2012, week)
