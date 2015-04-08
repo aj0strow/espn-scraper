@@ -1,5 +1,6 @@
 require 'uri'
 require 'cgi'
+require 'json'
 
 module ESPN
   # For football
@@ -165,14 +166,23 @@ module ESPN
       end
     
       def home_away_parse(doc, date)
-        doc.css('.mod-scorebox.final-state').map do |game|
+        scores = []
+        espn_data = JSON.parse(doc.css('#scoreboard-page').first.attr('data-data'))
+        games = espn_data['events']
+        games.each do |game|
           score = { game_date: date }
-          score[:home_team] = parse_data_name_from game.at_css('.team.home .team-name')
-          score[:away_team] = parse_data_name_from game.at_css('.team.away .team-name')
-          score[:home_score] = game.at_css('.team.home .finalScore').content.to_i
-          score[:away_score] = game.at_css('.team.away .finalScore').content.to_i
-          score      
+          game['competitions'].first['competitors'].each do |competitor|
+            if competitor['homeAway'] == 'home'
+              score[:home_team] = competitor['team']['abbreviation'].downcase
+              score[:home_score] = competitor['score'].to_i
+            else
+              score[:away_team] = competitor['team']['abbreviation'].downcase
+              score[:away_score] = competitor['score'].to_i
+            end
+          end
+          scores << score
         end
+        scores
       end
     
       def winner_loser_parse(doc, date)
