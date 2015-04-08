@@ -171,16 +171,19 @@ module ESPN
         games = espn_data['events']
         games.each do |game|
           score = { game_date: date }
-          game['competitions'].first['competitors'].each do |competitor|
-            if competitor['homeAway'] == 'home'
-              score[:home_team] = competitor['team']['abbreviation'].downcase
-              score[:home_score] = competitor['score'].to_i
-            else
-              score[:away_team] = competitor['team']['abbreviation'].downcase
-              score[:away_score] = competitor['score'].to_i
+          competition = game['competitions'].first
+          if competition['status']['type']['detail'] == 'Final'
+            competition['competitors'].each do |competitor|
+              if competitor['homeAway'] == 'home'
+                score[:home_team] = competitor['team']['abbreviation'].downcase
+                score[:home_score] = competitor['score'].to_i
+              else
+                score[:away_team] = competitor['team']['abbreviation'].downcase
+                score[:away_score] = competitor['score'].to_i
+              end
             end
+            scores << score
           end
-          scores << score
         end
         scores
       end
