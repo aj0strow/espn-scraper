@@ -170,8 +170,11 @@ module ESPN
         espn_data = JSON.parse(doc.css('#scoreboard-page').first.attr('data-data'))
         games = espn_data['events']
         games.each do |game|
+          # Game must be regular season
+          next unless game['season']['type'] == 2
           score = { game_date: date }
           competition = game['competitions'].first
+          # Score must be final
           if competition['status']['type']['detail'] == 'Final'
             competition['competitors'].each do |competitor|
               if competitor['homeAway'] == 'home'
