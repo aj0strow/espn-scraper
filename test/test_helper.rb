@@ -3,7 +3,8 @@ ERROR_CHECKS = 1
 require 'minitest/autorun'
 require 'espn_scraper'
 
-class EspnTest < Minitest::Test
+class EspnTest < MiniTest::Unit::TestCase
+
   class << self
     
     def test(test_name, &block)

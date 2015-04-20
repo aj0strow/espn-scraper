@@ -13,7 +13,7 @@ class MlbTest < EspnTest
       away_score: 2
     }
     scores = ESPN.get_mlb_scores(day)
-    assert_equal expected, scores.first
+    assert scores.include?(expected), 'A known MLB final score cannot be found'
   end
   
   test 'random mlb days' do
