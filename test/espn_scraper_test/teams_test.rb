@@ -40,14 +40,13 @@ class TeamsTest < EspnTest
   
   test 'scrape nhl teams' do
     divisions = ESPN.get_teams_in('nhl')
-    assert_equal 6, divisions.count
-    divisions.each do |name, teams|
-      assert_equal 5, teams.count
-    end
+    assert_equal 4, divisions.count
+    assert_equal 7, divisions['central'].count
+    assert_equal 8, divisions['atlantic'].count
     teams = divisions.values.flatten
     assert_equal 30, teams.map{ |h| h[:name] }.uniq.count
     assert_equal 30, teams.map{ |h| h[:data_name] }.uniq.count
-    assert divisions['northeast'].include?({ name: 'Montreal Canadiens', data_name: 'mtl' })
+    assert divisions['atlantic'].include?({ name: 'Montreal Canadiens', data_name: 'mtl' })
   end
   
   test 'scrape ncaa football teams' do
@@ -57,18 +56,18 @@ class TeamsTest < EspnTest
     
     assert divisions['conference-usa'].include?({ name: 'UAB Blazers', data_name: '5' })
     assert divisions['meac'].include?({ name: 'Bethune-Cookman Wildcats', data_name: '2065' })
-    assert divisions['northeast'].include?({ name: 'St. Francis Red Flash', data_name: '2598' })
+    assert divisions['northeast'].include?({ name: 'St Francis Red Flash', data_name: '2598' })
     assert divisions['swac'].include?({ name: 'Alabama A&M Bulldogs', data_name: '2010' })
   end
   
   test 'scrape ncaa basketball teams' do
     divisions = ESPN.get_teams_in('mens-college-basketball')
     assert_equal 33, divisions.count
-    assert_equal 12, divisions['acc'].count
-    assert_equal 8, divisions['patriot-league'].count
+    assert_equal 15, divisions['acc'].count
+    assert_equal 10, divisions['patriot-league'].count
     
     assert divisions['southland'].include?({ name: 'Texas A&M-CC Islanders', data_name: '357' })
-    assert divisions['atlantic-10'].include?({ name: "Saint Joseph's Hawks", data_name: '2603' })
+    assert divisions['atlantic-10'].include?({ name: "Saint Joe's Saint Joseph's Hawks", data_name: '2603' })
   end
 	
 end
