@@ -175,7 +175,7 @@ module ESPN
           score = { game_date: date }
           competition = game['competitions'].first
           # Score must be final
-          if competition['status']['type']['detail'] == 'Final'
+          if competition['status']['type']['detail'] =~ /^Final/
             competition['competitors'].each do |competitor|
               if competitor['homeAway'] == 'home'
                 score[:home_team] = competitor['team']['abbreviation'].downcase
