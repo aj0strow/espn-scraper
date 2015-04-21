@@ -2,8 +2,6 @@
 
 ESPN Scraper is a simple gem for scraping teams and scores from `ESPN`'s website. Please note that `ESPN` is not involved with this gem or me in any way. I chose `ESPN` because it is a leader in sports statistics and has a robust website. 
 
-![](https://fbcdn-sphotos-e-a.akamaihd.net/hphotos-ak-prn1/72415_10151558558197269_312200662_n.jpg)
-
 ```ruby
 ESPN.responding?
 # => true
@@ -119,9 +117,13 @@ Also please let me know if any of the data names get outdated. For instance a bu
 ESPN::DATA_NAME_FIXES['nfl']['gnb'] = 'gb'
 ```
 
-Future plans:
+Future plans:  
 - Get start and end dates of a season
 
+### Thank You
 
+* Dan Madere ([dgmdan](https://github.com/dgmdan))
 
+---
 
+**MIT License**

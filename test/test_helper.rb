@@ -3,12 +3,12 @@ ERROR_CHECKS = 1
 require 'minitest/autorun'
 require 'espn_scraper'
 
-class EspnTest < MiniTest::Unit::TestCase
+class EspnTest < Minitest::Test
 
   class << self
     
     def test(test_name, &block)
-      define_method("test_#{ test_name.gsub(/\s+/, '_') }", &block)
+      define_method("test_: #{ test_name }", &block)
     end
     
   end
