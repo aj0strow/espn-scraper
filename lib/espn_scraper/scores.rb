@@ -221,7 +221,8 @@ module ESPN
       end
     
       def data_name_from(link)
-        query = URI::parse(link).query
+        encoded_link = URI::encode(link.strip)
+        query = URI::parse(encoded_link).query
         if query
           CGI::parse(query)['team'].first
         else
