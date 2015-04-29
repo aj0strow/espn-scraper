@@ -10,7 +10,7 @@ module ESPN
     ## Time is returned Greenwich time
 
     # Example input:
-    # def get_nba_schedules(Date.parse("April 12,2015"))
+    # ESPN.get_nba_schedules(Date.parse("April 12,2015"))
 
     # Example output:
     # {
@@ -22,13 +22,11 @@ module ESPN
     #  }
 
     def get_nba_schedules(date)
-      league = __callee__.to_s.split("_")[1]
-      Schedules.get_schedule(league, date)
+      Schedules.get_schedule("nba", date)
     end
 
     def get_mlb_schedules(date)
-      league = __callee__.to_s.split("_")[1]
-      Schedules.get_schedule(league, date)
+      Schedules.get_schedule("mlb", date)
     end
   end
 
