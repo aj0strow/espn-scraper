@@ -167,8 +167,15 @@ module ESPN
     
       def home_away_parse(doc, date)
         scores = []
-        espn_data = JSON.parse(doc.css('#scoreboard-page').first.attr('data-data'))
-        games = espn_data['events']
+        games = []
+        espn_regex = /window\.espn\.scoreboardData \t= (\{.*?\});/
+        doc.xpath("//script").each do |script_section|
+          if script_section.content =~ espn_regex
+            espn_data = JSON.parse(espn_regex.match(script_section.content)[1])
+            games = espn_data['events']
+            break
+          end
+        end
         games.each do |game|
           # Game must be regular season
           next unless game['season']['type'] == 2
