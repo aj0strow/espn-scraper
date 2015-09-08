@@ -99,7 +99,7 @@ module ESPN
     
     def get_ncf_scores(year, week)
       markup = Scores.markup_from_year_and_week('college-football', year, week)
-      scores = Scores.visitor_home_parse(markup, 'ncf')
+      scores = Scores.ncf_parse(markup)
       scores.each { |report| report[:league] = 'college-football' }
       scores
     end
@@ -134,9 +134,7 @@ module ESPN
       # Get Markup
     
       def markup_from_year_and_week(league, year, week)
-        # seasonYear=2012&seasonType=2&weekNumber=4
-        http_params = %W[ seasonYear=#{year} seasonType=2 weekNumber=#{week} confId=80 ]
-        ESPN.get 'scores', league, "scoreboard?#{ http_params.join('&') }"
+        ESPN.get 'scores', league, "scoreboard/_/group/80/year/#{year}/seasontype/2/week/#{week}"
       end
     
       def markup_from_date(league, date)
@@ -196,6 +194,40 @@ module ESPN
           end
         end
         scores
+      end
+      
+      def ncf_parse(doc)
+          scores = []
+          games = []
+          espn_regex = /window\.espn\.scoreboardData \t= (\{.*?\});/
+          doc.xpath("//script").each do |script_section|
+              if script_section.content =~ espn_regex
+                  espn_data = JSON.parse(espn_regex.match(script_section.content)[1])
+                  games = espn_data['events']
+                  break
+              end
+          end
+          games.each do |game|
+              score = { league: "college-football" }
+              competition = game['competitions'].first
+              date = DateTime.parse(competition['startDate'])
+              date = date.new_offset('-06:00')
+              score[:game_date] = date.to_date
+              # Score must be final
+              if competition['status']['type']['detail'] =~ /^Final/
+                  competition['competitors'].each do |competitor|
+                      if competitor['homeAway'] == 'home'
+                          score[:home_team] = competitor['team']['id'].downcase
+                          score[:home_score] = competitor['score'].to_i
+                          else
+                          score[:away_team] = competitor['team']['id'].downcase
+                          score[:away_score] = competitor['score'].to_i
+                      end
+                  end
+                  scores << score
+              end
+          end
+          scores
       end
     
       def winner_loser_parse(doc, date)
