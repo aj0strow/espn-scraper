@@ -3,10 +3,11 @@ require 'test_helper'
 class NflTest < EspnTest
   
   test 'data names are fixed' do
-    score = ESPN.get_nfl_scores(2012, 2).first
-    assert_equal 'gb', score[:home_team]
+    scores = ESPN.get_nfl_scores(2012, 2)
+    assert scores.any?, 'scores parsing failed'
+    assert_equal 'gb', scores.first[:home_team]
   end
-
+  
   test 'nfl 2012 week 8 regular season' do
     expected = {
       league: 'nfl',

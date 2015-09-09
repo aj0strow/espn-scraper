@@ -197,37 +197,37 @@ module ESPN
       end
       
       def ncf_parse(doc)
-          scores = []
-          games = []
-          espn_regex = /window\.espn\.scoreboardData \t= (\{.*?\});/
-          doc.xpath("//script").each do |script_section|
-              if script_section.content =~ espn_regex
-                  espn_data = JSON.parse(espn_regex.match(script_section.content)[1])
-                  games = espn_data['events']
-                  break
-              end
+        scores = []
+        games = []
+        espn_regex = /window\.espn\.scoreboardData \t= (\{.*?\});/
+        doc.xpath("//script").each do |script_section|
+          if script_section.content =~ espn_regex
+            espn_data = JSON.parse(espn_regex.match(script_section.content)[1])
+            games = espn_data['events']
+            break
           end
-          games.each do |game|
-              score = { league: "college-football" }
-              competition = game['competitions'].first
-              date = DateTime.parse(competition['startDate'])
-              date = date.new_offset('-06:00')
-              score[:game_date] = date.to_date
-              # Score must be final
-              if competition['status']['type']['detail'] =~ /^Final/
-                  competition['competitors'].each do |competitor|
-                      if competitor['homeAway'] == 'home'
-                          score[:home_team] = competitor['team']['id'].downcase
-                          score[:home_score] = competitor['score'].to_i
-                          else
-                          score[:away_team] = competitor['team']['id'].downcase
-                          score[:away_score] = competitor['score'].to_i
-                      end
-                  end
-                  scores << score
+        end
+        games.each do |game|
+          score = { league: 'college-football' }
+          competition = game['competitions'].first
+          date = DateTime.parse(competition['startDate'])
+          date = date.new_offset('-06:00')
+          score[:game_date] = date.to_date
+          # Score must be final
+          if competition['status']['type']['detail'] =~ /^Final/
+            competition['competitors'].each do |competitor|
+              if competitor['homeAway'] == 'home'
+                score[:home_team] = competitor['team']['id'].downcase
+                score[:home_score] = competitor['score'].to_i
+                else
+                score[:away_team] = competitor['team']['id'].downcase
+                score[:away_score] = competitor['score'].to_i
               end
+            end
+            scores << score
           end
-          scores
+        end
+        scores
       end
     
       def winner_loser_parse(doc, date)
