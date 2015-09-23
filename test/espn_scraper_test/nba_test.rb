@@ -6,7 +6,7 @@ class NbaTest < EspnTest
     day = Date.parse('Dec 25, 2012')
     expected = {
       league: 'nba',
-      game_date: day,
+      game_date: DateTime.parse('2012-12-25T17:00:00+00:00'),
       home_team: 'bkn',
       home_score: 76,
       away_team: 'bos',

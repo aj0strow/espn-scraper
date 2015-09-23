@@ -53,8 +53,8 @@ class TeamsTest < EspnTest
     divisions = ESPN.get_teams_in('college-football')
     assert_equal 25, divisions.count
     assert_equal 12, divisions['pac-12'].count
-    
-    assert divisions['conference-usa'].include?({ name: 'UAB Blazers', data_name: '5' })
+
+    assert divisions['conference-usa'].include?({ name: 'Rice Owls', data_name: '242' })
     assert divisions['meac'].include?({ name: 'Bethune-Cookman Wildcats', data_name: '2065' })
     assert divisions['northeast'].include?({ name: 'St Francis Red Flash', data_name: '2598' })
     assert divisions['swac'].include?({ name: 'Alabama A&M Bulldogs', data_name: '2010' })
@@ -62,7 +62,7 @@ class TeamsTest < EspnTest
   
   test 'scrape ncaa basketball teams' do
     divisions = ESPN.get_teams_in('mens-college-basketball')
-    assert_equal 33, divisions.count
+    assert_equal 32, divisions.count
     assert_equal 15, divisions['acc'].count
     assert_equal 10, divisions['patriot-league'].count
     

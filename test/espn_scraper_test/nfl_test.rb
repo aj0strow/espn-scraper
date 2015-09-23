@@ -9,9 +9,10 @@ class NflTest < EspnTest
   end
   
   test 'nfl 2012 week 8 regular season' do
+    starts_at = DateTime.parse('2012-10-26T00:20Z')
     expected = {
       league: 'nfl',
-      game_date: Date.parse('Oct 25, 2012'),
+      game_date: starts_at,
       home_team: 'min',
       home_score: 17,
       away_team: 'tb',
@@ -22,9 +23,10 @@ class NflTest < EspnTest
   end
   
   test 'nfl 2012 week 7 regular season' do
+    starts_at = DateTime.parse('2012-10-23T00:30:00+00:00')
     expected = {
       league: 'nfl',
-      game_date: Date.parse('Oct 22, 2012'),
+      game_date: starts_at,
       home_team: 'chi',
       home_score: 13,
       away_team: 'det',

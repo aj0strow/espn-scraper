@@ -3,9 +3,10 @@ require 'test_helper'
 class NcfTest < EspnTest
   
   test 'college football 2012 week 9 regular season' do
+    starts_at = DateTime.parse('2012-10-23T00:00:00+00:00')
     expected = {
       league: 'college-football',
-      game_date: Date.parse('Oct 23, 2012'),
+      game_date: starts_at,
       home_team: '309',
       home_score: 27,
       away_team: '2032',

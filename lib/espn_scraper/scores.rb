@@ -71,21 +71,21 @@ module ESPN
     
     def get_nfl_scores(year, week)
       markup = Scores.markup_from_year_and_week('nfl', year, week)
-      scores = Scores.visitor_home_parse(markup, 'nfl')
+      scores = Scores.home_away_parse(markup)
       add_league_and_fixes(scores, 'nfl')
       scores
     end
     
     def get_mlb_scores(date)
       markup = Scores.markup_from_date('mlb', date)
-      scores = Scores.home_away_parse(markup, date)
+      scores = Scores.home_away_parse(markup)
       scores.each { |report| report[:league] = 'mlb' }
       scores
     end
     
     def get_nba_scores(date)
       markup = Scores.markup_from_date('nba', date)
-      scores = Scores.home_away_parse(markup, date)
+      scores = Scores.home_away_parse(markup)
       scores.each { |report| report[:league] = 'nba' }
       scores
     end
@@ -163,7 +163,7 @@ module ESPN
         game_scores
       end
     
-      def home_away_parse(doc, date)
+      def home_away_parse(doc)
         scores = []
         games = []
         espn_regex = /window\.espn\.scoreboardData \t= (\{.*?\});/
@@ -177,7 +177,7 @@ module ESPN
         games.each do |game|
           # Game must be regular season
           next unless game['season']['type'] == 2
-          score = { game_date: date }
+          score = {}
           competition = game['competitions'].first
           # Score must be final
           if competition['status']['type']['detail'] =~ /^Final/
@@ -190,6 +190,7 @@ module ESPN
                 score[:away_score] = competitor['score'].to_i
               end
             end
+            score[:game_date] = DateTime.parse(game['date'])
             scores << score
           end
         end
