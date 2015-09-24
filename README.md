@@ -61,7 +61,7 @@ All score requests return an array of hashes. Here's an example NFL score hash:
 ```ruby
 {
   league: 'nfl',
-  game_date: #<Date: 2012-10-25>,
+  game_date: #<DateTime: 2012-10-25>,
   home_team: 'min',
   home_score: 17,
   away_team: 'tb',
