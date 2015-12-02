@@ -3,12 +3,11 @@ require 'cgi'
 require 'json'
 
 module ESPN
-  # For football
   SEASONS = {
     preseason: 1,
     regular_season: 2,
     postseason: 3
-  }  
+  }
 
   mlb_ignores = %w( 
     florida-state u-of-south-florida georgetown fla.-southern northeastern boston-college 
@@ -106,14 +105,14 @@ module ESPN
     
     alias_method :get_college_football_scores, :get_ncf_scores
     
-    def get_ncb_scores(date)
-      markup = Scores.markup_from_date('ncb', date)
-      scores = Scores.visitor_home_parse(markup, 'ncb')
+    def get_ncb_scores(date, conference_id)
+      markup = Scores.markup_from_date_and_conference('ncb', date, conference_id)
+      scores = Scores.home_away_parse(markup)
       scores.each { |report| report.merge! league: 'mens-college-basketball', game_date: date }
       scores
     end
     
-    alias_method :get_college_basketball_scores, :get_ncb_scores    
+    alias_method :get_college_basketball_scores, :get_ncb_scores
     
     def add_league_and_fixes(scores, league)
       scores.each do |report|
@@ -141,27 +140,13 @@ module ESPN
         day = date.to_s.gsub(/[^\d]+/, '')
         ESPN.get 'scores', league, "scoreboard?date=#{ day }"
       end
+
+      def markup_from_date_and_conference(league, date, conference_id)
+        day = date.to_s.gsub(/[^\d]+/, '')
+        ESPN.get league, 'scoreboard', '_', 'group', conference_id.to_s, 'date', day
+      end
     
       # parsing strategies
-    
-      def visitor_home_parse(doc, league)
-        game_dates = doc.css('.games-date text()').map do |node|
-          Date.parse(node.content)
-        end
-        game_scores = []
-        doc.css('.gameDay-Container').each_with_index do |container, i|
-          container.css(".mod-#{league}-scorebox.final-state").each do |game|
-            game_info = {}
-            game_info[:game_date]  = game_dates[i]
-            game_info[:home_team]  = self.parse_data_name_from game.at_css('.home .team-name')
-            game_info[:away_team]  = self.parse_data_name_from game.at_css('.visitor .team-name')
-            game_info[:home_score] = game.at_css('.home .score .final').content.to_i
-            game_info[:away_score] = game.at_css('.visitor .score .final').content.to_i
-            game_scores.push game_info
-          end
-        end
-        game_scores
-      end
     
       def home_away_parse(doc)
         scores = []
@@ -175,8 +160,8 @@ module ESPN
           end
         end
         games.each do |game|
-          # Game must be regular season
-          next unless game['season']['type'] == 2
+          # Game must be regular or postseason
+          next unless game['season']['type'] == SEASONS[:regular_season] || game['season']['type'] == SEASONS[:postseason]
           score = {}
           competition = game['competitions'].first
           # Score must be final

@@ -23,6 +23,14 @@ module ESPN
         { name: name, data_name: div_data_name(name) }
       end
     end
+
+    def get_conferences_in_ncb
+      get_ncb_conferences.map do |element|
+        name = element.content
+        data_name = $1 if element.children[0].attributes['href'].value =~ /confId=(\d+)/
+        { name: name, data_name: data_name }
+      end
+    end
     
     def get_teams_in(league)
       divisions = {}
@@ -52,6 +60,10 @@ module ESPN
     
     def get_divs(league)
       self.get(league, 'teams').css('.mod-teams-list-medium')
+    end
+
+    def get_ncb_conferences
+      self.get('ncb', 'conferences').css('.mod-content h5')
     end
     
     def parse_div_name(div)
