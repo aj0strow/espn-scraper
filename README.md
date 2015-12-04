@@ -36,6 +36,18 @@ ESPN.get_divisions
 # }
 ```
 
+#### Scrape Conferences (NCAA D1 Men's Basketball only)
+
+You can get all the conferences in NCAA D1 Men's Basketball.
+
+```ruby
+ESPN.get_conferences_in_ncb
+# => [{:name=>"America East", :data_name=>"1"},
+#      {:name=>"American", :data_name=>"62"},
+#      ...
+      ]
+```
+
 #### Scrape teams
 
 You can get the teams in each league by acronym. It returns a hash of each division with an array of hashes for each team in the division.
