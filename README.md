@@ -45,7 +45,7 @@ ESPN.get_conferences_in_ncb
 # => [{:name=>"America East", :data_name=>"1"},
 #      {:name=>"American", :data_name=>"62"},
 #      ...
-      ]
+#      ]
 ```
 
 #### Scrape teams
