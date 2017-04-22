@@ -9,35 +9,35 @@ module ESPN
     postseason: 3
   }
 
-  mlb_ignores = %w( 
-    florida-state u-of-south-florida georgetown fla.-southern northeastern boston-college 
-    miami-florida florida-intl canada hanshin yomiuri sacramento springfield corpus-christi 
+  mlb_ignores = %w(
+    florida-state u-of-south-florida georgetown fla.-southern northeastern boston-college
+    miami-florida florida-intl canada hanshin yomiuri sacramento springfield corpus-christi
     round-rock carolina manatee-cc mexico cincinnati-(f) atlanta-(f) frisco toledo norfolk
     fort-myers tampa-bay-(f) nl-all-stars al-all-stars
   )
-  
+
   nba_ignores = %w( west-all-stars east-all-stars )
-  
+
   nhl_ignores = %w(
     hc-sparta frolunda hc-slovan ev-zug jokerit-helsinki hamburg-freezers adler-mannheim
     team-chara team-alfredsson
   )
-  
-  ncf_ignores = %w( paul-quinn san-diego-christian ferris-st notre-dame-college chaminade 
+
+  ncf_ignores = %w( paul-quinn san-diego-christian ferris-st notre-dame-college chaminade
     w-new-mexico n-new-mexico tx-a&m-commerce nw-oklahoma-st )
-  
-  IGNORED_TEAMS = (mlb_ignores + nhl_ignores + nba_ignores + ncf_ignores).inject({}) do |h, team| 
-    h.merge team => false 
+
+  IGNORED_TEAMS = (mlb_ignores + nhl_ignores + nba_ignores + ncf_ignores).inject({}) do |h, team|
+    h.merge team => false
   end
-    
+
   DATA_NAME_EXCEPTIONS = {
     'nets' => 'bkn',
     'supersonics' => 'okc',
     'hornets' => 'no',
-    
+
     'marlins' => 'mia'
   }.merge(IGNORED_TEAMS)
-  
+
   DATA_NAME_FIXES = {
     'nfl' => {
       'nwe' => 'ne',
@@ -65,55 +65,55 @@ module ESPN
   #   away_team: "min",
   #   away_score: 27
   # }
-  
+
   class << self
-    
+
     def get_nfl_scores(year, week)
       markup = Scores.markup_from_year_and_week('nfl', year, week)
       scores = Scores.home_away_parse(markup)
       add_league_and_fixes(scores, 'nfl')
       scores
     end
-    
+
     def get_mlb_scores(date)
       markup = Scores.markup_from_date('mlb', date)
-      scores = Scores.home_away_parse(markup)
+      scores = Scores.home_away_parse(markup, date)
       scores.each { |report| report[:league] = 'mlb' }
       scores
     end
-    
+
     def get_nba_scores(date)
       markup = Scores.markup_from_date('nba', date)
       scores = Scores.home_away_parse(markup)
       scores.each { |report| report[:league] = 'nba' }
       scores
     end
-    
+
     def get_nhl_scores(date)
       markup = Scores.markup_from_date('nhl', date)
       scores = Scores.winner_loser_parse(markup, date)
       scores.each { |report| report[:league] = 'nhl' }
       scores
     end
-    
+
     def get_ncf_scores(year, week)
       markup = Scores.markup_from_year_and_week('college-football', year, week)
       scores = Scores.ncf_parse(markup)
       scores.each { |report| report[:league] = 'college-football' }
       scores
     end
-    
+
     alias_method :get_college_football_scores, :get_ncf_scores
-    
+
     def get_ncb_scores(date, conference_id)
       markup = Scores.markup_from_date_and_conference('ncb', date, conference_id)
-      scores = Scores.home_away_parse(markup)
+      scores = Scores.home_away_parse(markup, date)
       scores.each { |report| report.merge! league: 'mens-college-basketball', game_date: date }
       scores
     end
-    
+
     alias_method :get_college_basketball_scores, :get_ncb_scores
-    
+
     def add_league_and_fixes(scores, league)
       scores.each do |report|
         report[:league] = league
@@ -123,19 +123,19 @@ module ESPN
         end
       end
     end
-  end  
+  end
 
 
 
   module Scores
     class << self
-    
+
       # Get Markup
-    
+
       def markup_from_year_and_week(league, year, week)
         ESPN.get 'scores', league, "scoreboard/_/group/80/year/#{year}/seasontype/2/week/#{week}"
       end
-    
+
       def markup_from_date(league, date)
         day = date.to_s.gsub(/[^\d]+/, '')
         ESPN.get 'scores', league, "scoreboard?date=#{ day }"
@@ -145,10 +145,10 @@ module ESPN
         day = date.to_s.gsub(/[^\d]+/, '')
         ESPN.get league, 'scoreboard', '_', 'group', conference_id.to_s, 'date', day
       end
-    
+
       # parsing strategies
-    
-      def home_away_parse(doc)
+
+      def home_away_parse(doc, date=nil)
         scores = []
         games = []
         espn_regex = /window\.espn\.scoreboardData \t= (\{.*?\});/
@@ -162,6 +162,12 @@ module ESPN
         games.each do |game|
           # Game must be regular or postseason
           next unless game['season']['type'] == SEASONS[:regular_season] || game['season']['type'] == SEASONS[:postseason]
+
+          # Game must not be suspended if it was supposed to start on the query date.
+          # This prevents fetching scores for suspended games which are not yet completed.
+          game_start_date = Date.parse(game['date'])
+          next if date && game['competitions'][0]['wasSuspended'] && game_start_date == date
+
           score = {}
           competition = game['competitions'].first
           # Score must be final
@@ -181,7 +187,7 @@ module ESPN
         end
         scores
       end
-      
+
       def ncf_parse(doc)
         scores = []
         games = []
@@ -215,7 +221,7 @@ module ESPN
         end
         scores
       end
-    
+
       def winner_loser_parse(doc, date)
         doc.css('.mod-scorebox-final').map do |game|
           game_info = { game_date: date }
@@ -226,9 +232,9 @@ module ESPN
           game_info
         end
       end
-    
+
       # parsing helpers
-    
+
       def parse_data_name_from(container)
         if container.at_css('a')
           link = container.at_css('a')['href']
@@ -244,7 +250,7 @@ module ESPN
           ESPN::DATA_NAME_EXCEPTIONS[ ESPN.dasherize(name) ]
         end
       end
-    
+
       def data_name_from(link)
         encoded_link = URI::encode(link.strip)
         query = URI::parse(encoded_link).query
@@ -254,7 +260,7 @@ module ESPN
           link.split('/')[-2]
         end
       end
-    
+
     end
   end
 end

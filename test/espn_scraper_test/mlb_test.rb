@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class MlbTest < EspnTest
-  
+
   test 'mlb august 13th 2012 yankees beat rangers' do
     starts_at = DateTime.parse('2012-08-13T23:00:00+00:00')
     expected = {
@@ -29,12 +29,18 @@ class MlbTest < EspnTest
     scores = ESPN.get_mlb_scores(starts_at.to_date)
     assert scores.include?(expected), 'A known MLB final score cannot be found'
   end
-  
+
+  test 'mlb sept 5th 2014 suspended game pittsburgh pirates at chicago cubs' do
+    scores = ESPN.get_mlb_scores(Date.parse('2014-09-05'))
+    home_teams = scores.each { |s| s['home_team'] }
+    assert !home_teams.include?('chc'), 'A known suspended game was unexpectedly found'
+  end
+
   test 'random mlb days' do
     random_days.each do |day|
       scores = ESPN.get_mlb_scores(day)
       assert all_names_present?(scores), "Error on #{day} for mlb"
     end
   end
-  
+
 end
