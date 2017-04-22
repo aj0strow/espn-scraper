@@ -165,8 +165,8 @@ module ESPN
 
           # Game must not be suspended if it was supposed to start on the query date.
           # This prevents fetching scores for suspended games which are not yet completed.
-          game_start_date = Date.parse(game['date'])
-          next if date && game['competitions'][0]['wasSuspended'] && game_start_date == date
+          game_start = DateTime.parse(game['date']).to_time.utc + Time.zone_offset('EDT')
+          next if date && game['competitions'][0]['wasSuspended'] && game_start.to_date == date
 
           score = {}
           competition = game['competitions'].first
