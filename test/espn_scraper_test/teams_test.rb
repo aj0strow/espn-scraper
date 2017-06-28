@@ -44,8 +44,8 @@ class TeamsTest < EspnTest
     assert_equal 7, divisions['central'].count
     assert_equal 8, divisions['atlantic'].count
     teams = divisions.values.flatten
-    assert_equal 30, teams.map{ |h| h[:name] }.uniq.count
-    assert_equal 30, teams.map{ |h| h[:data_name] }.uniq.count
+    assert_equal 31, teams.map{ |h| h[:name] }.uniq.count
+    assert_equal 31, teams.map{ |h| h[:data_name] }.uniq.count
     assert divisions['atlantic'].include?({ name: 'Montreal Canadiens', data_name: 'mtl' })
   end
 
