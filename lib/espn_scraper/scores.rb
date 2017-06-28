@@ -97,7 +97,7 @@ module ESPN
     end
 
     def get_ncf_scores(year, week)
-      markup = Scores.markup_from_year_and_week('college-football', year, week)
+      markup = Scores.markup_from_year_and_week('college-football', year, week, 80)
       scores = Scores.ncf_parse(markup)
       scores.each { |report| report[:league] = 'college-football' }
       scores
@@ -132,8 +132,12 @@ module ESPN
 
       # Get Markup
 
-      def markup_from_year_and_week(league, year, week)
-        ESPN.get 'scores', league, "scoreboard/_/group/80/year/#{year}/seasontype/2/week/#{week}"
+      def markup_from_year_and_week(league, year, week, group=nil)
+        if group
+          ESPN.get 'scores', league, "scoreboard/_/group/#{group}/year/#{year}/seasontype/2/week/#{week}"
+        else
+          ESPN.get 'scores', league, "scoreboard/_/year/#{year}/seasontype/2/week/#{week}"
+        end
       end
 
       def markup_from_date(league, date)
