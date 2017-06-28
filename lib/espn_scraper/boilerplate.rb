@@ -3,11 +3,11 @@ require 'nokogiri'
 
 module ESPN
   class << self
-    
+
     def responding?
-      HTTParty.get('http://espn.go.com/').code == 200
+      HTTParty.get('http://www.espn.com').code == 200
     end
-    
+
     def down?
       !responding?
     end
@@ -15,9 +15,8 @@ module ESPN
     # Ex: ESPN.url('scores')
     #     ESPN.url('teams', 'nba')
     def url(*path)
-      subdomain = (path.first == 'scores') ? path.shift : nil
-      domain = [subdomain, 'espn', 'go', 'com'].compact.join('.')
-      ['http:/', domain, *path].join('/')
+      path.shift if path.first == 'scores'
+      ['http://www.espn.com', *path].join('/')
     end
 
     # Returns Nokogiri HTML document
@@ -29,22 +28,22 @@ module ESPN
         Nokogiri::HTML(response.body)
       else
         raise ArgumentError, error_message(url, path)
-      end      
+      end
     end
-    
+
     def dasherize(str)
       str.strip.downcase.gsub(/\s+/, '-')
     end
-    
-    
+
+
     private
-    
-    
-    
+
+
+
     def error_message(url, path)
       "The url #{url} from the path #{path} did not return a valid page."
     end
-        
+
   end
 end
 
