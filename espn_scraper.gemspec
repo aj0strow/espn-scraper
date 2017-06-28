@@ -5,6 +5,7 @@ Gem::Specification.new do |s|
   s.name        = 'espn_scraper'
   s.version     = ESPN::VERSION
   s.date        = '2013-04-07'
+  s.licenses    = %w[ MIT ]
   s.summary     = 'ESPN Scraper'
   s.description = 'a simple scraping api for espn stats and data'
   s.authors     = %w[ aj0strow ]
