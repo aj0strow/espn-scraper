@@ -1,6 +1,6 @@
 # ESPN Scraper
 
-ESPN Scraper is a simple gem for scraping teams and scores from `ESPN`'s website. Please note that `ESPN` is not involved with this gem or me in any way. I chose `ESPN` because it is a leader in sports statistics and has a robust website. 
+ESPN Scraper is a simple gem for scraping teams and scores from `ESPN`'s website. Please note that `ESPN` is not involved with this gem or me in any way. I chose `ESPN` because it is a leader in sports statistics and has a robust website.
 
 ```ruby
 ESPN.responding?
@@ -55,11 +55,11 @@ You can get the teams in each league by acronym. It returns a hash of each divis
 ```ruby
 ESPN.get_teams_in('nba')
 # => {
-#   "atlantic"=> [ 
-#     { :name => "Boston Celtics", :data_name => "bos" },  
-#     { :name => "Brooklyn Nets", :data_name => "bkn" }, 
-#     { :name => "New York Knicks", :data_name => "ny" }, 
-#     { :name => "Philadelphia 76ers", :data_name => "phi" }, 
+#   "atlantic"=> [
+#     { :name => "Boston Celtics", :data_name => "bos" },
+#     { :name => "Brooklyn Nets", :data_name => "bkn" },
+#     { :name => "New York Knicks", :data_name => "ny" },
+#     { :name => "Philadelphia 76ers", :data_name => "phi" },
 #     { :name => "Toronto Raptors", :data_name => "tor" }
 #   ]
 #   "pacific" => ...
@@ -121,7 +121,7 @@ require 'espn_scraper'
 
 ## Contributing
 
-Please report back if something breaks on you! 
+Please report back if something breaks on you!
 
 Also please let me know if any of the data names get outdated. For instance a bunch of NFL data names were recently changed. You can make fixes temporarily with the following:
 
@@ -129,7 +129,19 @@ Also please let me know if any of the data names get outdated. For instance a bu
 ESPN::DATA_NAME_FIXES['nfl']['gnb'] = 'gb'
 ```
 
-Future plans:  
+Running tests:
+```
+rake test
+```
+
+Re-building the gem and installing locally:
+```
+gem build espn_scraper.gemspec
+gem uninstall espn_scraper
+gem install espn_scraper-x.x.x.gem
+```
+
+Future plans:
 - Get start and end dates of a season
 
 ### Thank You
