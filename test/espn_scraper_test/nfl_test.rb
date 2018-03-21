@@ -2,12 +2,18 @@ require 'test_helper'
 
 class NflTest < EspnTest
   
-  test 'data names are fixed' do
+  test 'gb data name is fixed' do
     scores = ESPN.get_nfl_scores(2012, 2)
     assert scores.any?, 'scores parsing failed'
     assert_equal 'gb', scores.first[:home_team]
   end
-  
+
+  test 'sd data name is fixed' do
+    scores = ESPN.get_nfl_scores(2016, 1)
+    assert scores.any?, 'scores parsing failed'
+    assert scores.collect { |s| s[:away_team] }.include?('lac')
+  end
+
   test 'nfl 2012 week 8 regular season' do
     starts_at = DateTime.parse('2012-10-26T00:20Z')
     expected = {

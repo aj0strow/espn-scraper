@@ -47,7 +47,8 @@ module ESPN
       'gnb' => 'gb',
       'sfo' => 'sf',
       'tam' => 'tb',
-      'sdg' => 'sd'
+      'sdg' => 'lac',
+      'sd' => 'lac'
     },
     'mlb' => {},
     'nba' => {},
