@@ -10,7 +10,9 @@ class MlbTest < EspnTest
       home_team: 'nyy',
       home_score: 8,
       away_team: 'tex',
-      away_score: 2
+      away_score: 2,
+      season_type: ESPN::SEASONS[:regular_season],
+      game_status: ESPN::GAME_STATUSES[:completed]
     }
     scores = ESPN.get_mlb_scores(starts_at.to_date)
     assert scores.include?(expected), 'A known MLB final score cannot be found'
@@ -24,7 +26,9 @@ class MlbTest < EspnTest
         home_team: 'tor',
         home_score: 6,
         away_team: 'atl',
-        away_score: 5
+        away_score: 5,
+        season_type: ESPN::SEASONS[:regular_season],
+        game_status: ESPN::GAME_STATUSES[:completed]
     }
     scores = ESPN.get_mlb_scores(starts_at.to_date)
     assert scores.include?(expected), 'A known MLB final score cannot be found'
@@ -41,6 +45,13 @@ class MlbTest < EspnTest
       scores = ESPN.get_mlb_scores(day)
       assert all_names_present?(scores), "Error on #{day} for mlb"
     end
+  end
+
+  test 'live mlb scores' do
+    season_types = [ESPN::SEASONS[:preseason]]
+    game_statuses = [ESPN::GAME_STATUSES[:in_progress]]
+    scores = ESPN.get_mlb_scores(Date.parse('2018-03-22'), season_types, game_statuses)
+    assert_equal ESPN::GAME_STATUSES[:in_progress], scores.first[:game_status]
   end
 
 end

@@ -10,7 +10,9 @@ class NbaTest < EspnTest
       home_team: 'bkn',
       home_score: 76,
       away_team: 'bos',
-      away_score: 93
+      away_score: 93,
+      season_type: ESPN::SEASONS[:regular_season],
+      game_status: ESPN::GAME_STATUSES[:completed]
     }
     scores = ESPN.get_nba_scores(day)
     assert_equal expected, scores.first

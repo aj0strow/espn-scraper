@@ -9,6 +9,12 @@ module ESPN
     postseason: 3
   }
 
+  GAME_STATUSES = {
+    scheduled: 1,
+    in_progress: 2,
+    completed: 3
+  }
+
   mlb_ignores = %w(
     florida-state u-of-south-florida georgetown fla.-southern northeastern boston-college
     miami-florida florida-intl canada hanshin yomiuri sacramento springfield corpus-christi
@@ -69,46 +75,46 @@ module ESPN
 
   class << self
 
-    def get_nfl_scores(year, week)
+    def get_nfl_scores(year, week, season_types=nil, game_statuses=nil)
       markup = Scores.markup_from_year_and_week('nfl', year, week)
-      scores = Scores.home_away_parse(markup)
+      scores = Scores.home_away_parse(markup, season_types, game_statuses)
       add_league_and_fixes(scores, 'nfl')
       scores
     end
 
-    def get_mlb_scores(date)
+    def get_mlb_scores(date, season_types=nil, game_statuses=nil)
       markup = Scores.markup_from_date('mlb', date)
-      scores = Scores.home_away_parse(markup, date)
+      scores = Scores.home_away_parse(markup, date, season_types, game_statuses)
       scores.each { |report| report[:league] = 'mlb' }
       scores
     end
 
-    def get_nba_scores(date)
+    def get_nba_scores(date, season_types=nil, game_statuses=nil)
       markup = Scores.markup_from_date('nba', date)
-      scores = Scores.home_away_parse(markup)
+      scores = Scores.home_away_parse(markup, season_types, game_statuses)
       scores.each { |report| report[:league] = 'nba' }
       scores
     end
 
-    def get_nhl_scores(date)
+    def get_nhl_scores(date, season_types=nil, game_statuses=nil)
       markup = Scores.markup_from_date('nhl', date)
-      scores = Scores.winner_loser_parse(markup, date)
+      scores = Scores.winner_loser_parse(markup, date) #TODO: send season_types, game_statuses
       scores.each { |report| report[:league] = 'nhl' }
       scores
     end
 
-    def get_ncf_scores(year, week)
+    def get_ncf_scores(year, week, season_types=nil, game_statuses=nil)
       markup = Scores.markup_from_year_and_week('college-football', year, week, 80)
-      scores = Scores.ncf_parse(markup)
+      scores = Scores.ncf_parse(markup) #TODO: send season_types, game_statuses
       scores.each { |report| report[:league] = 'college-football' }
       scores
     end
 
     alias_method :get_college_football_scores, :get_ncf_scores
 
-    def get_ncb_scores(date, conference_id)
+    def get_ncb_scores(date, conference_id, season_types=nil, game_statuses=nil)
       markup = Scores.markup_from_date_and_conference('ncb', date, conference_id)
-      scores = Scores.home_away_parse(markup, date)
+      scores = Scores.home_away_parse(markup, date, season_types, game_statuses)
       scores.each { |report| report.merge! league: 'mens-college-basketball', game_date: date }
       scores
     end
@@ -153,7 +159,11 @@ module ESPN
 
       # parsing strategies
 
-      def home_away_parse(doc, date=nil)
+      def home_away_parse(doc, date=nil, season_types=nil, game_statuses=nil)
+
+        # If no game status specified, use completed only
+        game_statuses = [ESPN::GAME_STATUSES[:completed]] if game_statuses.nil?
+
         scores = []
         games = []
         espn_regex = /window\.espn\.scoreboardData \t= (\{.*?\});/
@@ -165,30 +175,39 @@ module ESPN
           end
         end
         games.each do |game|
-          # Game must be regular or postseason
-          next unless game['season']['type'] == SEASONS[:regular_season] || game['season']['type'] == SEASONS[:postseason]
+          # Validate season type
+          next unless season_types.nil? || season_types.include?(game['season']['type'])
 
           # Game must not be suspended if it was supposed to start on the query date.
           # This prevents fetching scores for suspended games which are not yet completed.
           game_start = DateTime.parse(game['date']).to_time.utc + Time.zone_offset('EDT')
           next if date && game['competitions'][0]['wasSuspended'] && game_start.to_date == date
 
-          score = {}
+          # Validate game status
           competition = game['competitions'].first
-          # Score must be final
           if competition['status']['type']['detail'] =~ /^Final/
-            competition['competitors'].each do |competitor|
-              if competitor['homeAway'] == 'home'
-                score[:home_team] = competitor['team']['abbreviation'].downcase
-                score[:home_score] = competitor['score'].to_i
-              else
-                score[:away_team] = competitor['team']['abbreviation'].downcase
-                score[:away_score] = competitor['score'].to_i
-              end
-            end
-            score[:game_date] = DateTime.parse(game['date'])
-            scores << score
+            game_status = ESPN::GAME_STATUSES[:completed]
+          else
+            # TODO: detect scheduled game status
+            game_status = ESPN::GAME_STATUSES[:in_progress]
           end
+          next unless game_statuses.include? game_status
+
+          # Retrieve teams and scores
+          score = {}
+          competition['competitors'].each do |competitor|
+            if competitor['homeAway'] == 'home'
+              score[:home_team] = competitor['team']['abbreviation'].downcase
+              score[:home_score] = competitor['score'].to_i
+            else
+              score[:away_team] = competitor['team']['abbreviation'].downcase
+              score[:away_score] = competitor['score'].to_i
+            end
+          end
+          score[:game_date] = DateTime.parse(game['date'])
+          score[:game_status] = game_status
+          score[:season_type] = game['season']['type']
+          scores << score
         end
         scores
       end

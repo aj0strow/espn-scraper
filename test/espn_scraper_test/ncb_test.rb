@@ -11,7 +11,9 @@ class NcbTest < EspnTest
       home_team: 'murr',
       home_score: 58,
       away_team: 'csu',
-      away_score: 41
+      away_score: 41,
+      season_type: ESPN::SEASONS[:postseason],
+      game_status: ESPN::GAME_STATUSES[:completed]
     }
     mountain_west_conf = ESPN.get_conferences_in_ncb.select {|c| c[:name] == 'Mountain West' }.first
     scores = ESPN.get_college_basketball_scores(day, mountain_west_conf[:data_name])

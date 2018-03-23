@@ -22,7 +22,9 @@ class NflTest < EspnTest
       home_team: 'min',
       home_score: 17,
       away_team: 'tb',
-      away_score: 36
+      away_score: 36,
+      season_type: ESPN::SEASONS[:regular_season],
+      game_status: ESPN::GAME_STATUSES[:completed]
     }
     scores = ESPN.get_nfl_scores(2012, 8)
     assert_equal expected, scores.first
@@ -36,7 +38,9 @@ class NflTest < EspnTest
       home_team: 'chi',
       home_score: 13,
       away_team: 'det',
-      away_score: 7
+      away_score: 7,
+      season_type: ESPN::SEASONS[:regular_season],
+      game_status: ESPN::GAME_STATUSES[:completed]
     }
     scores = ESPN.get_nfl_scores(2012, 7)
     assert_equal expected, scores.last
