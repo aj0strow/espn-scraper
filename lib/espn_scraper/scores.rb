@@ -98,14 +98,14 @@ module ESPN
 
     def get_nhl_scores(date, season_types=nil, game_statuses=nil)
       markup = Scores.markup_from_date('nhl', date)
-      scores = Scores.winner_loser_parse(markup, date) #TODO: send season_types, game_statuses
+      scores = Scores.winner_loser_parse(markup, date, season_types, game_statuses)
       scores.each { |report| report[:league] = 'nhl' }
       scores
     end
 
     def get_ncf_scores(year, week, season_types=nil, game_statuses=nil)
       markup = Scores.markup_from_year_and_week('college-football', year, week, 80)
-      scores = Scores.ncf_parse(markup) #TODO: send season_types, game_statuses
+      scores = Scores.ncf_parse(markup, season_types, game_statuses)
       scores.each { |report| report[:league] = 'college-football' }
       scores
     end
@@ -212,7 +212,10 @@ module ESPN
         scores
       end
 
-      def ncf_parse(doc)
+      def ncf_parse(doc, season_types=nil, game_statuses=nil)
+        # If no game status specified, use completed only
+        game_statuses = [ESPN::GAME_STATUSES[:completed]] if game_statuses.nil?
+
         scores = []
         games = []
         espn_regex = /window\.espn\.scoreboardData \t= (\{.*?\});/
@@ -224,29 +227,51 @@ module ESPN
           end
         end
         games.each do |game|
+          # Validate season type
+          next unless season_types.nil? || season_types.include?(game['season']['type'])
+
+          # Game must not be suspended if it was supposed to start on the query date.
+          # This prevents fetching scores for suspended games which are not yet completed.
+          game_start = DateTime.parse(game['date']).to_time.utc + Time.zone_offset('EDT')
+          next if date && game['competitions'][0]['wasSuspended'] && game_start.to_date == date
+
+          # Validate game status
+          competition = game['competitions'].first
+          if competition['status']['type']['detail'] =~ /^Final/
+            game_status = ESPN::GAME_STATUSES[:completed]
+          else
+            # TODO: detect scheduled game status
+            game_status = ESPN::GAME_STATUSES[:in_progress]
+          end
+          next unless game_statuses.include? game_status
+
+          # Retrieve teams and scores
           score = { league: 'college-football' }
           competition = game['competitions'].first
           date = DateTime.parse(competition['startDate'])
           date = date.new_offset('-06:00')
           score[:game_date] = date.to_date
-          # Score must be final
-          if competition['status']['type']['detail'] =~ /^Final/
-            competition['competitors'].each do |competitor|
-              if competitor['homeAway'] == 'home'
-                score[:home_team] = competitor['team']['id'].downcase
-                score[:home_score] = competitor['score'].to_i
-                else
-                score[:away_team] = competitor['team']['id'].downcase
-                score[:away_score] = competitor['score'].to_i
-              end
+          score[:game_status] = game_status
+          score[:season_type] = game['season']['type']
+          competition['competitors'].each do |competitor|
+            if competitor['homeAway'] == 'home'
+              score[:home_team] = competitor['team']['id'].downcase
+              score[:home_score] = competitor['score'].to_i
+              else
+              score[:away_team] = competitor['team']['id'].downcase
+              score[:away_score] = competitor['score'].to_i
             end
-            scores << score
           end
+          scores << score
         end
         scores
       end
 
-      def winner_loser_parse(doc, date)
+      def winner_loser_parse(doc, date, season_types, game_statuses)
+        # If no game status specified, use completed only
+        game_statuses = [ESPN::GAME_STATUSES[:completed]] if game_statuses.nil?
+
+        # TODO: validate season type + game status
         doc.css('.mod-scorebox-final').map do |game|
           game_info = { game_date: date }
           teams = game.css('td.team-name:not([colspan])').map { |td| parse_data_name_from(td) }
