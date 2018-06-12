@@ -185,11 +185,14 @@ module ESPN
 
           # Validate game status
           competition = game['competitions'].first
-          if competition['status']['type']['detail'] =~ /^Final/
+          if competition['status']['type']['name'] == 'STATUS_FINAL'
             game_status = ESPN::GAME_STATUSES[:completed]
-          else
-            # TODO: detect scheduled game status
+          elsif competition['status']['type']['name'] == 'STATUS_SCHEDULED'
+            game_status = ESPN::GAME_STATUSES[:scheduled]
+          elsif competition['status']['type']['name'] == 'STATUS_IN_PROGRESS'
             game_status = ESPN::GAME_STATUSES[:in_progress]
+          else
+            next
           end
           next unless game_statuses.include? game_status
 

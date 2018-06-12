@@ -57,4 +57,14 @@ class MlbTest < EspnTest
     assert_equal ESPN::GAME_STATUSES[:in_progress], scores.first[:game_status]
   end
 
+  test 'scheduled mlb scores' do
+    # we mock the response instead of visiting ESPN to ensure there's some in progress games
+    game_statuses = [ESPN::GAME_STATUSES[:scheduled]]
+    mock_path = File.join(File.dirname(__FILE__), '../mocks/scheduled-mlb.html')
+    mock_content = Nokogiri::HTML(File.read(mock_path))
+    scores = ESPN::Scores.home_away_parse(mock_content, '2018-06-12', nil, game_statuses)
+    assert scores.any?
+  end
+
 end
+
