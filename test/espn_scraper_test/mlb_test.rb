@@ -47,10 +47,13 @@ class MlbTest < EspnTest
     end
   end
 
-  test 'live mlb scores' do
+  test 'in progress mlb scores' do
     season_types = [ESPN::SEASONS[:preseason]]
     game_statuses = [ESPN::GAME_STATUSES[:in_progress]]
-    scores = ESPN.get_mlb_scores(Date.parse('2018-03-22'), season_types, game_statuses)
+    # we mock the response instead of visiting ESPN to ensure there's some in progress games
+    mock_path = File.join(File.dirname(__FILE__), '../mocks/live-mlb.html')
+    mock_content = Nokogiri::HTML(File.read(mock_path))
+    scores = ESPN::Scores.home_away_parse(mock_content, '2018-03-22', season_types, game_statuses)
     assert_equal ESPN::GAME_STATUSES[:in_progress], scores.first[:game_status]
   end
 

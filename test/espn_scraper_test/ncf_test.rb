@@ -10,7 +10,9 @@ class NcfTest < EspnTest
       home_team: '309',
       home_score: 27,
       away_team: '2032',
-      away_score: 50
+      away_score: 50,
+      game_status: ESPN::GAME_STATUSES[:completed],
+      season_type: ESPN::SEASONS[:regular_season]
     }
     scores = ESPN.get_college_football_scores(2012, 9)
     assert_equal expected, scores.first

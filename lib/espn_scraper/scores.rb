@@ -230,11 +230,6 @@ module ESPN
           # Validate season type
           next unless season_types.nil? || season_types.include?(game['season']['type'])
 
-          # Game must not be suspended if it was supposed to start on the query date.
-          # This prevents fetching scores for suspended games which are not yet completed.
-          game_start = DateTime.parse(game['date']).to_time.utc + Time.zone_offset('EDT')
-          next if date && game['competitions'][0]['wasSuspended'] && game_start.to_date == date
-
           # Validate game status
           competition = game['competitions'].first
           if competition['status']['type']['detail'] =~ /^Final/
