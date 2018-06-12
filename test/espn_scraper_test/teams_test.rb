@@ -51,7 +51,7 @@ class TeamsTest < EspnTest
 
   test 'scrape ncaa football teams' do
     divisions = ESPN.get_teams_in('college-football')
-    # assert_equal 25, divisions.count
+    assert_equal 25, divisions.count
     assert_equal 12, divisions['pac-12'].count
 
     assert divisions['conference-usa'].include?({ name: 'Rice Owls', data_name: '242' })
@@ -72,7 +72,7 @@ class TeamsTest < EspnTest
 
   test 'scrape ncaa basketball conferences' do
     conferences = ESPN.get_conferences_in_ncb
-    # assert_equal 33, conferences.count
+    assert_equal 33, conferences.count
     assert conferences.include?({ name: 'Mountain West', data_name: '44' })
   end
 
