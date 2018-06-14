@@ -96,9 +96,9 @@ module ESPN
       scores
     end
 
-    def get_nhl_scores(date, season_types=nil, game_statuses=nil)
+    def get_nhl_scores(date, game_statuses=nil)
       markup = Scores.markup_from_date('nhl', date)
-      scores = Scores.winner_loser_parse(markup, date, season_types, game_statuses)
+      scores = Scores.winner_loser_parse(markup, date, game_statuses)
       scores.each { |report| report[:league] = 'nhl' }
       scores
     end
@@ -265,19 +265,32 @@ module ESPN
         scores
       end
 
-      def winner_loser_parse(doc, date, season_types, game_statuses)
+      def winner_loser_parse(doc, date, game_statuses)
         # If no game status specified, use completed only
         game_statuses = [ESPN::GAME_STATUSES[:completed]] if game_statuses.nil?
+        games = []
 
-        # TODO: validate season type + game status
-        doc.css('.mod-scorebox-final').map do |game|
+        doc.css('.mod-scorebox').map do |game|
+          # get date
           game_info = { game_date: date }
+          # get teams
           teams = game.css('td.team-name:not([colspan])').map { |td| parse_data_name_from(td) }
           game_info[:away_team], game_info[:home_team] = teams
+          # get score
           scores = game.css('.team-score').map { |td| td.at_css('span').content.to_i }
           game_info[:away_score], game_info[:home_score] = scores
-          game_info
+          # get game status
+          status = game.css('ul.game-info').map { |ul| ul.content }.first
+          if status =~ /^Final/i
+            game_info[:game_status] = GAME_STATUSES[:completed] 
+          elsif status =~ /(AM|PM)/
+            game_info[:game_status] = GAME_STATUSES[:scheduled]
+          else
+            game_info[:game_status] = GAME_STATUSES[:in_progress]
+          end
+          games.push(game_info) if game_statuses.include?(game_info[:game_status])
         end
+        games
       end
 
       # parsing helpers
