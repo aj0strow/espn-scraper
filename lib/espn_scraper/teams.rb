@@ -36,7 +36,7 @@ module ESPN
       divisions = {}
 	    get_divs(league.to_s.downcase).each do |division|
         key = div_data_name parse_div_name(division)
-        divisions[key] = division.css('.mod-content li').map do |team|
+        divisions[key] = division.css('.ContentList').map do |team|
           team_elem = team.at_css('h5 a.bi')
           team_name = team_elem.content
           data_name, slug = team_elem['href'].split('/').last(2)
@@ -59,7 +59,7 @@ module ESPN
     
     
     def get_divs(league)
-      self.get(league, 'teams').css('.mod-teams-list-medium')
+      self.get(league, 'teams').css('.mt7')
     end
 
     def get_ncb_conferences
