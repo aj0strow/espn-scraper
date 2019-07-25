@@ -36,7 +36,7 @@ module ESPN
       divisions = {}
 	    get_divs(league.to_s.downcase).each do |division|
         key = div_data_name parse_div_name(division)
-        divisions[key] = division.css('.ContentList').map do |team|
+        divisions[key] = division.css('.ContentList').first.css('.ContentList__Item').map do |team|
           team_elem = team.at_css('h5 a.bi')
           team_name = team_elem.content
           data_name, slug = team_elem['href'].split('/').last(2)

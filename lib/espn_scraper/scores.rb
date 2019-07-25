@@ -175,20 +175,21 @@ module ESPN
 
           score = {}
           competition = game['competitions'].first
-          # Score must be final
-          if competition['status']['type']['detail'] =~ /^Final/
-            competition['competitors'].each do |competitor|
-              if competitor['homeAway'] == 'home'
-                score[:home_team] = competitor['team']['abbreviation'].downcase
-                score[:home_score] = competitor['score'].to_i
+
+          score[:game_date] = DateTime.parse(game['date'])
+          score[:is_final] = competition['status']['type']['completed'] == false
+
+          competition['competitors'].each do |competitor|
+            if competitor['homeAway'] == 'home'
+              score[:home_team] = competitor['team']['abbreviation'].downcase
+              score[:home_score] = competitor['score'].to_i
               else
-                score[:away_team] = competitor['team']['abbreviation'].downcase
-                score[:away_score] = competitor['score'].to_i
-              end
+              score[:away_team] = competitor['team']['abbreviation'].downcase
+              score[:away_score] = competitor['score'].to_i
             end
-            score[:game_date] = DateTime.parse(game['date'])
-            scores << score
           end
+
+          scores << score
         end
         scores
       end
@@ -209,20 +210,21 @@ module ESPN
           competition = game['competitions'].first
           date = DateTime.parse(competition['startDate'])
           date = date.new_offset('-06:00')
+          
           score[:game_date] = date.to_date
-          # Score must be final
-          if competition['status']['type']['detail'] =~ /^Final/
-            competition['competitors'].each do |competitor|
-              if competitor['homeAway'] == 'home'
-                score[:home_team] = competitor['team']['id'].downcase
-                score[:home_score] = competitor['score'].to_i
-                else
-                score[:away_team] = competitor['team']['id'].downcase
-                score[:away_score] = competitor['score'].to_i
-              end
+          score[:is_final] = competition['status']['type']['completed'] == false
+
+          competition['competitors'].each do |competitor|
+            if competitor['homeAway'] == 'home'
+              score[:home_team] = competitor['team']['id'].downcase
+              score[:home_score] = competitor['score'].to_i
+              else
+              score[:away_team] = competitor['team']['id'].downcase
+              score[:away_score] = competitor['score'].to_i
             end
-            scores << score
           end
+
+          scores << score
         end
         scores
       end
