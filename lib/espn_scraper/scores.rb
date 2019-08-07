@@ -69,8 +69,8 @@ module ESPN
 
   class << self
 
-    def get_nfl_scores(year, week)
-      markup = Scores.markup_from_year_and_week('nfl', year, week)
+    def get_nfl_scores(year, week, preseason=false)
+      markup = Scores.markup_from_year_and_week('nfl', year, week, nil, preseason)
       scores = Scores.home_away_parse(markup)
       add_league_and_fixes(scores, 'nfl')
       scores
@@ -97,8 +97,8 @@ module ESPN
       scores
     end
 
-    def get_ncf_scores(year, week)
-      markup = Scores.markup_from_year_and_week('college-football', year, week, 80)
+    def get_ncf_scores(year, week, preseason=false)
+      markup = Scores.markup_from_year_and_week('college-football', year, week, 80, preseason)
       scores = Scores.ncf_parse(markup)
       scores.each { |report| report[:league] = 'college-football' }
       scores
@@ -133,11 +133,19 @@ module ESPN
 
       # Get Markup
 
-      def markup_from_year_and_week(league, year, week, group=nil)
-        if group
-          ESPN.get 'scores', league, "scoreboard/_/group/#{group}/year/#{year}/seasontype/2/week/#{week}"
+      def markup_from_year_and_week(league, year, week, group=nil, preseason=false)
+        if preseason
+          if group
+            ESPN.get league, "scoreboard/_/group/#{group}/year/#{year}/seasontype/1/week/#{week}"
+          else
+            ESPN.get league, "scoreboard/_/year/#{year}/seasontype/1/week/#{week}"
+          end
         else
-          ESPN.get 'scores', league, "scoreboard/_/year/#{year}/seasontype/2/week/#{week}"
+          if group
+            ESPN.get 'scores', league, "scoreboard/_/group/#{group}/year/#{year}/seasontype/2/week/#{week}"
+          else
+            ESPN.get 'scores', league, "scoreboard/_/year/#{year}/seasontype/2/week/#{week}"
+          end
         end
       end
 
@@ -166,7 +174,7 @@ module ESPN
         end
         games.each do |game|
           # Game must be regular or postseason
-          next unless game['season']['type'] == SEASONS[:regular_season] || game['season']['type'] == SEASONS[:postseason]
+          # next unless game['season']['type'] == SEASONS[:regular_season] || game['season']['type'] == SEASONS[:postseason]
 
           # Game must not be suspended if it was supposed to start on the query date.
           # This prevents fetching scores for suspended games which are not yet completed.
@@ -177,7 +185,7 @@ module ESPN
           competition = game['competitions'].first
 
           score[:game_date] = DateTime.parse(game['date'])
-          score[:is_final] = competition['status']['type']['completed'] == false
+          score[:is_final] = competition['status']['type']['completed'] != false
 
           competition['competitors'].each do |competitor|
             if competitor['homeAway'] == 'home'
@@ -212,7 +220,7 @@ module ESPN
           date = date.new_offset('-06:00')
           
           score[:game_date] = date.to_date
-          score[:is_final] = competition['status']['type']['completed'] == false
+          score[:is_final] = competition['status']['type']['completed'] != false
 
           competition['competitors'].each do |competitor|
             if competitor['homeAway'] == 'home'
