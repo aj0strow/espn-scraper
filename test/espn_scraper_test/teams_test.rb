@@ -67,12 +67,12 @@ class TeamsTest < EspnTest
     assert_equal 10, divisions['patriot-league'].count
 
     assert divisions['southland'].include?({ name: 'Incarnate Word Cardinals', data_name: '2916' })
-    assert divisions['atlantic-10'].include?({ name: "Saint Joe's Saint Joseph's Hawks", data_name: '2603' })
+    assert divisions['atlantic-10'].include?({ name: "Saint Joseph's Hawks", data_name: '2603' })
   end
 
   test 'scrape ncaa basketball conferences' do
     conferences = ESPN.get_conferences_in_ncb
-    assert_equal 33, conferences.count
+    assert_equal 32, conferences.count
     assert conferences.include?({ name: 'Mountain West', data_name: '44' })
   end
 
