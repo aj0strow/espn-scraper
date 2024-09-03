@@ -18,8 +18,8 @@ module ESPN
     end
     
     def get_divisions_in(league)
-      get_divs(league).map do |div|
-        name = parse_div_name(div)
+      get_divisions(league).map do |div|
+        name = parse_division_name(div)
         { name: name, data_name: div_data_name(name) }
       end
     end
@@ -34,11 +34,15 @@ module ESPN
     
     def get_teams_in(league)
       divisions = {}
-	    get_divs(league.to_s.downcase).each do |division|
-        key = div_data_name parse_div_name(division)
-        divisions[key] = division.css('.mod-content li').map do |team|
-          team_elem = team.at_css('h5 a.bi')
-          team_name = team_elem.content
+
+      # iterate through divisions
+	    get_divisions(league.to_s.downcase).each do |division|
+        key = div_data_name parse_division_name(division)
+
+        # iterate through teams in the division
+        divisions[key] = division.css('div .ContentList__Item').map do |team|
+          team_elem = team.at_css('.AnchorLink')
+          team_name = team_elem.at_css('img')['title']
           data_name, slug = team_elem['href'].split('/').last(2)
           
           slug.sub! dasherize(team_name), ''
@@ -58,16 +62,16 @@ module ESPN
     
     
     
-    def get_divs(league)
-      self.get(league, 'teams').css('.mod-teams-list-medium')
+    def get_divisions(league)
+      self.get(league, 'teams').css('div.mt7')
     end
 
     def get_ncb_conferences
       self.get('ncb', 'conferences').css('.mod-content h5')
     end
     
-    def parse_div_name(div)
-      div.at_css('.mod-header h4 text()').content
+    def parse_division_name(div)
+      div.at_css('.headline text()').content
     end
     
     def div_data_name(div_name)
