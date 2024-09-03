@@ -26,8 +26,8 @@ module ESPN
 
     def get_conferences_in_ncb
       get_ncb_conferences.map do |element|
-        name = element.content
-        data_name = $1 if element.children[0].attributes['href'].value =~ /confId=(\d+)/
+        name = element.text
+        data_name = $1.to_s if element.attributes['value'].value =~ /^(\d+)$/
         { name: name, data_name: data_name }
       end
     end
@@ -67,7 +67,9 @@ module ESPN
     end
 
     def get_ncb_conferences
-      self.get('ncb', 'conferences').css('.mod-content h5')
+      conferences = self.get('mens-college-basketball', 'teams').at_css('.dropdown__select').children
+      # don't include the first option because its just "all conferences"
+      conferences.drop(1)
     end
     
     def parse_division_name(div)
