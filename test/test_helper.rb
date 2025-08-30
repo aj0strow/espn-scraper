@@ -2,6 +2,7 @@ ERROR_CHECKS = 1
 
 require 'minitest/autorun'
 require 'espn_scraper'
+require 'date'
 
 class EspnTest < Minitest::Test
 
