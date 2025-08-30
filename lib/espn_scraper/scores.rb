@@ -135,9 +135,9 @@ module ESPN
 
       def markup_from_year_and_week(league, year, week, group=nil)
         if group
-          ESPN.get 'scores', league, "scoreboard/_/group/#{group}/year/#{year}/seasontype/2/week/#{week}"
+          ESPN.get league, "scoreboard/_/group/#{group}/week/#{week}/year/#{year}/seasontype/2"
         else
-          ESPN.get 'scores', league, "scoreboard/_/year/#{year}/seasontype/2/week/#{week}"
+          ESPN.get league, "scoreboard/_/week/#{week}/year/#{year}/seasontype/2"
         end
       end
 
