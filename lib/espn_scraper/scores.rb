@@ -134,76 +134,110 @@ module ESPN
       # Get Markup
 
       def markup_from_year_and_week(league, year, week, group=nil)
-        if group
-          ESPN.get league, "scoreboard/_/group/#{group}/week/#{week}/year/#{year}/seasontype/2"
+        tz = 'America/New_York'
+        base = 'https://site.web.api.espn.com/apis/site/v2/sports'
+        api_sport = case league
+                    when 'mlb' then 'baseball/mlb'
+                    when 'nba' then 'basketball/nba'
+                    when 'nfl' then 'football/nfl'
+                    when 'nhl' then 'hockey/nhl'
+                    when 'ncb' then 'basketball/mens-college-basketball'
+                    when 'college-football','ncf' then 'football/college-football'
+                    else "#{league}"
+                    end
+        url = if group
+          "#{base}/#{api_sport}/scoreboard?seasontype=2&week=#{week}&year=#{year}&group=#{group}&tz=#{CGI.escape(tz)}"
         else
-          ESPN.get league, "scoreboard/_/week/#{week}/year/#{year}/seasontype/2"
+          "#{base}/#{api_sport}/scoreboard?seasontype=2&week=#{week}&year=#{year}&tz=#{CGI.escape(tz)}"
         end
+        response = HTTParty.get(url)
+        raise ArgumentError, "Error getting #{url}. Status code: #{response.code}. Body: #{response.body}" unless response.code == 200
+        JSON.parse(response.body)
       end
 
       def markup_from_date(league, date)
         day = date.to_s.gsub(/[^\d]+/, '')
-        ESPN.get 'scores', league, "scoreboard?date=#{ day }"
+        tz = 'America/New_York'
+        base = 'https://site.web.api.espn.com/apis/site/v2/sports'
+        api_sport = case league
+                    when 'mlb' then 'baseball/mlb'
+                    when 'nba' then 'basketball/nba'
+                    when 'nfl' then 'football/nfl'
+                    when 'nhl' then 'hockey/nhl'
+                    when 'ncb' then 'basketball/mens-college-basketball'
+                    when 'college-football','ncf' then 'football/college-football'
+                    else "#{league}"
+                    end
+        url = "#{base}/#{api_sport}/scoreboard?dates=#{day}&tz=#{CGI.escape(tz)}"
+        response = HTTParty.get(url)
+        raise ArgumentError, "Error getting #{url}. Status code: #{response.code}. Body: #{response.body}" unless response.code == 200
+        JSON.parse(response.body)
       end
 
       def markup_from_date_and_conference(league, date, conference_id)
         day = date.to_s.gsub(/[^\d]+/, '')
-        ESPN.get league, 'scoreboard', '_', 'group', conference_id.to_s, 'date', day
+        tz = 'America/New_York'
+        base = 'https://site.web.api.espn.com/apis/site/v2/sports'
+        api_sport = case league
+                    when 'ncb','mens-college-basketball' then 'basketball/mens-college-basketball'
+                    else 'basketball/mens-college-basketball'
+                    end
+        url = "#{base}/#{api_sport}/scoreboard?dates=#{day}&groups=#{conference_id}&tz=#{CGI.escape(tz)}"
+        response = HTTParty.get(url)
+        raise ArgumentError, "Error getting #{url}. Status code: #{response.code}. Body: #{response.body}" unless response.code == 200
+        JSON.parse(response.body)
       end
 
       # parsing strategies
 
       def home_away_parse(doc, date, league)
+        # doc is expected to be a parsed JSON hash returned by markup_from_* methods
         scores = []
-        games = []
-        espn_regex = /window\.espn\.scoreboardData \t= (\{.*?\});/
-        doc.xpath("//script").each do |script_section|
-          if script_section.content =~ espn_regex
-            espn_data = JSON.parse(espn_regex.match(script_section.content)[1])
-            games = espn_data['events']
-            break
-          end
-        end
-        games.each do |game|
-          # Game must be regular or postseason
-          next unless game['season']['type'] == SEASONS[:regular_season] || game['season']['type'] == SEASONS[:postseason]
+        events = doc.is_a?(Hash) ? (doc['events'] || []) : []
 
-          # Game must not be suspended if it was supposed to start on the query date.
-          # This prevents fetching scores for suspended games which are not yet completed.
-          game_start = DateTime.parse(game['date']).to_time.utc + Time.zone_offset('EDT')
-          next if date && game['competitions'][0]['wasSuspended'] && game_start.to_date == date
+        events.each do |game|
+          # Filter by regular/postseason if present
+          if game['season'] && game['season']['type']
+            next unless game['season']['type'] == SEASONS[:regular_season] || game['season']['type'] == SEASONS[:postseason]
+          end
+
+          # Skip suspended games that started on the query date
+          comp = game['competitions']&.first || {}
+          game_date_iso = game['date'] || comp['startDate']
+          was_suspended = comp['wasSuspended']
+          if was_suspended && game_date_iso && date
+            game_start = DateTime.parse(game_date_iso)
+            next if game_start.to_date == date
+          end
+
+          competition = game['competitions']&.first
+          next unless competition
+
+          status_detail = competition.dig('status', 'type', 'detail').to_s
+          next unless status_detail =~ /^Final/
 
           score = {}
-          competition = game['competitions'].first
-          # Score must be final
-          if competition['status']['type']['detail'] =~ /^Final/
-            competition['competitors'].each do |competitor|
-              if competitor['homeAway'] == 'home'
-                score[:home_team] = competitor['team']['abbreviation'].downcase
-                score[:home_score] = competitor['score'].to_i
-              else
-                score[:away_team] = competitor['team']['abbreviation'].downcase
-                score[:away_score] = competitor['score'].to_i
-              end
+          (competition['competitors'] || []).each do |competitor|
+            team = competitor['team'] || {}
+            abbr = (team['abbreviation'] || team['id'] || '').to_s.downcase
+            if competitor['homeAway'] == 'home'
+              score[:home_team] = abbr
+              score[:home_score] = competitor['score'].to_i
+            else
+              score[:away_team] = abbr
+              score[:away_score] = competitor['score'].to_i
             end
-            score[:game_date] = DateTime.parse(game['date'])
-            scores << score
           end
+          score[:game_date] = DateTime.parse(game['date'] || competition['startDate'])
+          scores << score if score[:home_team] && score[:away_team]
         end
         scores
       end
 
       def ncf_parse(doc)
+        # doc is expected to be a parsed JSON hash returned by markup_from_* methods
         scores = []
-        games = []
-        espn_regex = /window\.espn\.scoreboardData \t= (\{.*?\});/
-        doc.xpath("//script").each do |script_section|
-          if script_section.content =~ espn_regex
-            espn_data = JSON.parse(espn_regex.match(script_section.content)[1])
-            games = espn_data['events']
-            break
-          end
-        end
+        games = doc.is_a?(Hash) ? (doc['events'] || []) : []
         games.each do |game|
           score = { league: 'college-football' }
           competition = game['competitions'].first
@@ -228,13 +262,26 @@ module ESPN
       end
 
       def winner_loser_parse(doc, date)
-        doc.css('.mod-scorebox-final').map do |game|
-          game_info = { game_date: date }
-          teams = game.css('td.team-name:not([colspan])').map { |td| parse_data_name_from(td) }
-          game_info[:away_team], game_info[:home_team] = teams
-          scores = game.css('.team-score').map { |td| td.at_css('span').content.to_i }
-          game_info[:away_score], game_info[:home_score] = scores
-          game_info
+        # For NHL, parse the JSON events and return away/home scores
+        events = doc.is_a?(Hash) ? (doc['events'] || []) : []
+        events.each_with_object([]) do |game, arr|
+          comp = game['competitions']&.first
+          next unless comp
+          detail = comp.dig('status', 'type', 'detail').to_s
+          next unless detail =~ /^Final/
+          info = { game_date: date }
+          (comp['competitors'] || []).each do |competitor|
+            team = competitor['team'] || {}
+            abbr = (team['abbreviation'] || team['id'] || '').to_s.downcase
+            if competitor['homeAway'] == 'home'
+              info[:home_team] = abbr
+              info[:home_score] = competitor['score'].to_i
+            else
+              info[:away_team] = abbr
+              info[:away_score] = competitor['score'].to_i
+            end
+          end
+          arr << info if info[:home_team] && info[:away_team]
         end
       end
 
