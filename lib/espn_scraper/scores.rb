@@ -78,14 +78,14 @@ module ESPN
 
     def get_mlb_scores(date)
       markup = Scores.markup_from_date('mlb', date)
-      scores = Scores.home_away_parse(markup, date)
+      scores = Scores.home_away_parse(markup, date, 'mlb')
       scores.each { |report| report[:league] = 'mlb' }
       scores
     end
 
     def get_nba_scores(date)
       markup = Scores.markup_from_date('nba', date)
-      scores = Scores.home_away_parse(markup)
+      scores = Scores.home_away_parse(markup, date, 'nba')
       scores.each { |report| report[:league] = 'nba' }
       scores
     end
@@ -108,7 +108,7 @@ module ESPN
 
     def get_ncb_scores(date, conference_id)
       markup = Scores.markup_from_date_and_conference('ncb', date, conference_id)
-      scores = Scores.home_away_parse(markup, date)
+      scores = Scores.home_away_parse(markup, date, 'ncb')
       scores.each { |report| report.merge! league: 'mens-college-basketball', game_date: date }
       scores
     end
@@ -153,7 +153,7 @@ module ESPN
 
       # parsing strategies
 
-      def home_away_parse(doc, date=nil)
+      def home_away_parse(doc, date, league)
         scores = []
         games = []
         espn_regex = /window\.espn\.scoreboardData \t= (\{.*?\});/
