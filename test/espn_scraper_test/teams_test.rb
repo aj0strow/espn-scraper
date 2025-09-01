@@ -72,7 +72,7 @@ class TeamsTest < EspnTest
 
   test 'scrape ncaa basketball conferences' do
     conferences = ESPN.get_conferences_in_ncb
-    assert_equal 31, conferences.count
+    assert_equal 32, conferences.count
     assert conferences.include?({ name: 'Mountain West', data_name: '44' })
   end
 
