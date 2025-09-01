@@ -18,7 +18,7 @@ module ESPN
     end
     
     def get_divisions_in(league)
-      get_divisions(league).map do |div|
+      fetch_division_sections(league).map do |div|
         name = parse_division_name(div)
         { name: name, data_name: div_data_name(name) }
       end
@@ -36,7 +36,7 @@ module ESPN
       divisions = {}
 
       # iterate through divisions
-	    get_divisions(league.to_s.downcase).each do |division|
+      fetch_division_sections(league.to_s.downcase).each do |division|
         key = div_data_name parse_division_name(division)
 
         # iterate through teams in the division
@@ -62,7 +62,8 @@ module ESPN
     
     
     
-    def get_divisions(league)
+    # Backwards-compatible: fetch raw division sections for a specific league
+    def fetch_division_sections(league)
       self.get(league, 'teams').css('div.mt7')
     end
 
