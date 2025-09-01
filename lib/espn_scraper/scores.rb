@@ -69,9 +69,29 @@ module ESPN
 
   class << self
 
+    # Compute the anchor date for a given NFL regular-season week.
+    # Returns a Date representing the Thursday of that week (when TNF is played).
+    def nfl_week_start_date(year, week)
+      # NFL Week 1 is the week containing the first Thursday after September 1st of the given year.
+      # Find first Thursday on or after Sep 4 (covers modern era). Then add (week-1)*7 days.
+      sep4 = Date.new(year, 9, 4)
+      # wday: 0=Sunday ... 4=Thursday ... 6=Saturday
+      days_until_thu = (4 - sep4.wday) % 7
+      first_thu = sep4 + days_until_thu
+      target_thu = first_thu + (week - 1) * 7
+      target_thu
+    end
+
     def get_nfl_scores(year, week)
-      markup = Scores.markup_from_year_and_week('nfl', year, week)
-      scores = Scores.home_away_parse(markup)
+      # Build the full NFL week by aggregating daily ESPN API scoreboards
+      start_thu = nfl_week_start_date(year, week)
+      # Include Thursday through Tuesday (covers TNF thru MNF even with late/UTC spillover)
+      days = (0..5).map { |d| start_thu + d }
+      docs = days.map { |d| Scores.markup_from_date('nfl', d) }
+      combined = { 'events' => docs.flat_map { |doc| doc.is_a?(Hash) ? (doc['events'] || []) : [] } }
+      scores = Scores.home_away_parse(combined, nil, 'nfl')
+      # Ensure deterministic order (oldest to newest) to satisfy tests expecting first/last of the week
+      scores.sort_by! { |s| s[:game_date] }
       add_league_and_fixes(scores, 'nfl')
       scores
     end
@@ -203,7 +223,7 @@ module ESPN
 
           # Skip suspended games that started on the query date
           comp = game['competitions']&.first || {}
-          game_date_iso = game['date'] || comp['startDate']
+          game_date_iso = comp['startDate'] || game['date']
           was_suspended = comp['wasSuspended']
           if was_suspended && game_date_iso && date
             game_start = DateTime.parse(game_date_iso)
@@ -228,7 +248,7 @@ module ESPN
               score[:away_score] = competitor['score'].to_i
             end
           end
-          score[:game_date] = DateTime.parse(game['date'] || competition['startDate'])
+          score[:game_date] = DateTime.parse(competition['startDate'] || game['date'])
           scores << score if score[:home_team] && score[:away_team]
         end
         scores
