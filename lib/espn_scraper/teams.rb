@@ -20,6 +20,10 @@ module ESPN
     def get_divisions_in(league)
       fetch_division_sections(league).map do |div|
         name = parse_division_name(div)
+        # Normalize MLB division names to short form (AL/NL)
+        if league.to_s.downcase == 'mlb'
+          name = mlb_division_short(name)
+        end
         { name: name, data_name: div_data_name(name) }
       end
     end
@@ -79,6 +83,18 @@ module ESPN
     
     def div_data_name(div_name)
       dasherize div_name.gsub(/division/i, '')
+    end
+
+    def mlb_division_short(name)
+      # Convert 'American League West' -> 'AL West', 'National League East' -> 'NL East'
+      case name
+      when /American League\s+(East|Central|West)/i
+        "AL #{$1}"
+      when /National League\s+(East|Central|West)/i
+        "NL #{$1}"
+      else
+        name
+      end
     end
 
   end
