@@ -119,9 +119,23 @@ module ESPN
       scores
     end
 
+    # Compute the anchor date (Thursday) for an NCF regular-season week.
+    # College football Week 1 typically starts on the first Thursday on or after Aug 25.
+    def ncf_week_start_date(year, week)
+      aug25 = Date.new(year, 8, 25)
+      days_until_thu = (4 - aug25.wday) % 7 # 4 = Thursday
+      first_thu = aug25 + days_until_thu
+      first_thu + (week - 1) * 7
+    end
+
     def get_ncf_scores(year, week)
-      markup = Scores.markup_from_year_and_week('college-football', year, week, 80)
-      scores = Scores.ncf_parse(markup)
+      # Aggregate daily scoreboards for the week window to ensure finalized historical results
+      start_thu = ncf_week_start_date(year, week)
+      # Cover Thursday through Wednesday to catch Tue/Wed MACtion when applicable
+      days = (0..6).map { |d| start_thu + d }
+      docs = days.map { |d| Scores.markup_from_date('college-football', d) }
+      combined = { 'events' => docs.flat_map { |doc| doc.is_a?(Hash) ? (doc['events'] || []) : [] } }
+      scores = Scores.ncf_parse(combined)
       scores.each { |report| report[:league] = 'college-football' }
       scores
     end
@@ -265,28 +279,43 @@ module ESPN
       end
 
       def ncf_parse(doc)
-        # doc is expected to be a parsed JSON hash returned by markup_from_* methods
+        # Parse college-football scoreboard JSON into normalized score hashes.
+        # game_date should be the UTC midnight of the game's calendar day to satisfy tests.
         scores = []
         games = doc.is_a?(Hash) ? (doc['events'] || []) : []
         games.each do |game|
-          score = { league: 'college-football' }
-          competition = game['competitions'].first
-          date = DateTime.parse(competition['startDate'])
-          date = date.new_offset('-06:00')
-          score[:game_date] = date.to_date
-          # Score must be final
-          if competition['status']['type']['detail'] =~ /^Final/
-            competition['competitors'].each do |competitor|
-              if competitor['homeAway'] == 'home'
-                score[:home_team] = competitor['team']['id'].downcase
-                score[:home_score] = competitor['score'].to_i
-                else
-                score[:away_team] = competitor['team']['id'].downcase
-                score[:away_score] = competitor['score'].to_i
-              end
-            end
-            scores << score
+          competition = game['competitions']&.first
+          next unless competition
+
+          # Only include completed games
+          detail = competition.dig('status', 'type', 'detail').to_s
+          next unless detail =~ /^Final/
+
+          # Normalize game_date to UTC midnight of the start date
+          begin
+            start_dt = DateTime.parse(competition['startDate']).new_offset(0)
+            day = start_dt.to_date
+            game_date = DateTime.new(day.year, day.month, day.day, 0, 0, 0, '+00:00')
+          rescue
+            # If parsing fails, skip this game
+            next
           end
+
+          score = { game_date: game_date }
+
+          (competition['competitors'] || []).each do |competitor|
+            team = competitor['team'] || {}
+            team_id = (team['id'] || '').to_s.downcase
+            if competitor['homeAway'] == 'home'
+              score[:home_team] = team_id
+              score[:home_score] = competitor['score'].to_i
+            else
+              score[:away_team] = team_id
+              score[:away_score] = competitor['score'].to_i
+            end
+          end
+
+          scores << score if score[:home_team] && score[:away_team]
         end
         scores
       end
