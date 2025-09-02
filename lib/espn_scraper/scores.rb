@@ -54,7 +54,9 @@ module ESPN
     'nba' => {},
     'nhl' => {},
     'ncf' => {},
-    'ncb' => {}
+    'ncb' => {
+          'mur' => 'murr'
+        }
   }
 
   # Example output:
@@ -129,7 +131,15 @@ module ESPN
     def get_ncb_scores(date, conference_id)
       markup = Scores.markup_from_date_and_conference('ncb', date, conference_id)
       scores = Scores.home_away_parse(markup, date, 'ncb')
-      scores.each { |report| report.merge! league: 'mens-college-basketball', game_date: date }
+      # Apply team abbreviation fixes for NCB without changing league key
+      fixes = DATA_NAME_FIXES['ncb'] || {}
+      scores.each do |report|
+        [:home_team, :away_team].each do |sym|
+          team = report[sym]
+          report[sym] = fixes[team] || team
+        end
+        report.merge! league: 'mens-college-basketball', game_date: date
+      end
       scores
     end
 
