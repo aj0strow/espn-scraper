@@ -18,27 +18,35 @@ module ESPN
     end
     
     def get_divisions_in(league)
-      get_divs(league).map do |div|
-        name = parse_div_name(div)
+      fetch_division_sections(league).map do |div|
+        name = parse_division_name(div)
+        # Normalize MLB division names to short form (AL/NL)
+        if league.to_s.downcase == 'mlb'
+          name = mlb_division_short(name)
+        end
         { name: name, data_name: div_data_name(name) }
       end
     end
 
     def get_conferences_in_ncb
       get_ncb_conferences.map do |element|
-        name = element.content
-        data_name = $1 if element.children[0].attributes['href'].value =~ /confId=(\d+)/
+        name = element.text
+        data_name = $1.to_s if element.attributes['value'].value =~ /^(\d+)$/
         { name: name, data_name: data_name }
       end
     end
     
     def get_teams_in(league)
       divisions = {}
-	    get_divs(league.to_s.downcase).each do |division|
-        key = div_data_name parse_div_name(division)
-        divisions[key] = division.css('.mod-content li').map do |team|
-          team_elem = team.at_css('h5 a.bi')
-          team_name = team_elem.content
+
+      # iterate through divisions
+      fetch_division_sections(league.to_s.downcase).each do |division|
+        key = div_data_name parse_division_name(division)
+
+        # iterate through teams in the division
+        divisions[key] = division.css('div .ContentList__Item').map do |team|
+          team_elem = team.at_css('.AnchorLink')
+          team_name = team_elem.at_css('img')['title']
           data_name, slug = team_elem['href'].split('/').last(2)
           
           slug.sub! dasherize(team_name), ''
@@ -58,20 +66,35 @@ module ESPN
     
     
     
-    def get_divs(league)
-      self.get(league, 'teams').css('.mod-teams-list-medium')
+    # Backwards-compatible: fetch raw division sections for a specific league
+    def fetch_division_sections(league)
+      self.get(league, 'teams').css('div.mt7')
     end
 
     def get_ncb_conferences
-      self.get('ncb', 'conferences').css('.mod-content h5')
+      conferences = self.get('mens-college-basketball', 'teams').at_css('.dropdown__select').children
+      # don't include the first option because its just "all conferences"
+      conferences.drop(1)
     end
     
-    def parse_div_name(div)
-      div.at_css('.mod-header h4 text()').content
+    def parse_division_name(div)
+      div.at_css('.headline text()').content
     end
     
     def div_data_name(div_name)
       dasherize div_name.gsub(/division/i, '')
+    end
+
+    def mlb_division_short(name)
+      # Convert 'American League West' -> 'AL West', 'National League East' -> 'NL East'
+      case name
+      when /American League\s+(East|Central|West)/i
+        "AL #{$1}"
+      when /National League\s+(East|Central|West)/i
+        "NL #{$1}"
+      else
+        name
+      end
     end
 
   end

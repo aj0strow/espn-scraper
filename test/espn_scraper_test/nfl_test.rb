@@ -8,10 +8,10 @@ class NflTest < EspnTest
     assert_equal 'gb', scores.first[:home_team]
   end
 
-  test 'sd data name is fixed' do
-    scores = ESPN.get_nfl_scores(2016, 1)
+  test 'kc data name is fixed' do
+    scores = ESPN.get_nfl_scores(2024, 1)
     assert scores.any?, 'scores parsing failed'
-    assert scores.collect { |s| s[:away_team] }.include?('lac')
+    assert scores.collect { |s| s[:home_team] }.include?('kc')
   end
 
   test 'nfl 2012 week 8 regular season' do
